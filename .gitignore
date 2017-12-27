@@ -1,0 +1,27 @@
+# Windows:
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# For Python:
+*.so
+*.egg
+*.egg-info
+*.ipynb
+dist
+build
+
+# Data:
+*.ini
+*.conf
+*.pkl
+config.py
+
+# My configurations:
+Thumbs.db
+ehthumbs.db
+.idea
+__pycache__
+
+# Datasets:
+*.txt
