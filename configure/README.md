@@ -12,6 +12,7 @@ By envisocy
 管理系统内所有可以连通的数据源的连接信息：
 
 返回的信息格式为：
+```
 调用名称：Name：{
     显示别名: 'alias':
     备注信息: 'remark':
@@ -19,6 +20,7 @@ By envisocy
     具体参数类型： 'config':{}
     修改时间： 'date':
     }
+```
 
 支持的数据源类型：
 数据文件：csv文档
@@ -41,7 +43,7 @@ By envisocy
 
 #### 获取库内SQL信息
 
-'''
+```
 >>> import configure
 >>> configure.sql_msg
 {'localhost': {'alias': 'localhost',
@@ -54,20 +56,20 @@ By envisocy
   'date': '2017-12-23 15:00:00',
   'remark': 'None',
   'style': 'mysql'}}
-'''
+```
 
 #### 库内文档配置文件
 
-'''
+```
 >>> import configure
 >>> configure.config.search_dirs
 
 ['DatabaseConfig', 'DatafileConfig']
-'''
+```
 
 #### 读取特定文件
 
-'''
+```
 >>> import configure
 >>> prp = configure.prpcrypt.prpcrypt()
 >>> prp.read_file("C:\\Users\\Administrator\\Desktop\\","localhost.txt")
@@ -75,11 +77,11 @@ By envisocy
 #- 路径 path，默认为空
 #- 文件名 filename，默认为default.txt
 "There's no file exists."
-'''
+```
 
 #### 写入特定文件
 
-'''
+```
 >>> import configure
 >>> text = "{'alias': 'localhost','config': {'charset': 'utf8','db': 'mysql',\
 'host': '127.0.0.1','passwd': '123456','port': 3306,'user': 'root'},'date': \
@@ -90,4 +92,4 @@ By envisocy
 #- 文本 text
 #- 路径 path，默认为空
 #- 文件名 filename，默认为default.txt
-'''
+```
