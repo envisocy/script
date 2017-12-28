@@ -5,6 +5,10 @@ import configure
 import datetime
 import pymysql
 import pandas as pd
+import time
+import json
+import os
+
 
 class basic():
     def __init__(self, **kwargs):
@@ -24,7 +28,9 @@ class basic():
         self.variable = kwargs.get("variable", "热销排名")# 二次筛选需求的显示变量
         self.fillna = kwargs.get("fillna", "")  # 填充空值
         self.debug = kwargs.get("debug", 0)     # 选择输出项目
-        self.path = kwargs.get("path","")       # debug=9,输出csv的路径指定
+        self.path = kwargs.get("path","")   # debug=9,输出csv的路径指定
+        if not self.path:
+            self.path = os.path.join(os.path.expanduser("~"),'Desktop')
         self.keyword = kwargs.get("keyword","日期：")
         # 替换的关键词（防止显示数字在前的异常排序）
         self.screening = kwargs.get("screening",{})
@@ -43,7 +49,11 @@ class basic():
             self.v4m = keargs.get["screening"].get("v4m", 0)
 
     def run(self, fun="a"):
-        self.xiaobaods_a()
+        self.time_s = time.time()
+        if fun == "a":
+            self.xiaobaods_a()
+        else:
+            print(" * fun not be defined!")
 
     def request_date(self):
         try:
@@ -93,6 +103,25 @@ class basic():
             df = df.fillna(self.fillna)
         return df
 
+    def export(self, df, msg, sql, filename=""):
+        if self.debug == 1:
+            print("- Running time：%.4f s" % (time.time() - time_s))
+            print(msg)
+        elif self.debug == 2:
+            print("- Running time：%.4f s" % (time.time() - time_s))
+            print(sql)
+        elif self.debug == 8:
+            print(df)
+        elif self.debug == 9:
+            print("- Running time：%.4f s" % (time.time() - time_s))
+            try:
+                df.to_csv(self.path + os.path.sep + filename + ".csv")
+                print("> 输出CSV文件：", self.path, ",", filename)
+            except Exception as e:
+                print("> 输出CSV文件失败，错误原因：", e)
+        else:
+            print(df.to_json(orient="index"))
+        return df
 
     def xiaobaods_a(self):
         '''
@@ -122,8 +151,8 @@ class basic():
             sql_select_m += ",MAX(CASE ST.日期 WHEN " + str(self.date - \
                 datetime.timedelta(self.length - i - 1)).replace("-", "") + \
                 " THEN ST." + self.variable + " ELSE NULL END) AS `日期：" + \
-                str(self.date - datetime.timedelta(self.length - i - 1)).
-                replace("-", "") + "` "
+                str(self.date - datetime.timedelta(self.length - i - \
+                                                   1)).replace("-", "") + "` "
         sql_select_re = ""
         if self.screening:
             sql_select_re = " AND CT.`热销排名`>=" + str(self.rankl) + \
@@ -151,5 +180,25 @@ class basic():
         sql_select_c = "SELECT COUNT(*) AS total FROM " + self.table + " AS CT \
             WHERE CT.`日期` = " + str(self.date).replace("-", "") + " AND \
             CT.类目 = '" + self.category + "'" + sql_select_re + ";"
-        df = self.request_df(sql_select_f + sql_select_m + sql_select_b + \
-                             sql_select_e, sql_select_c)
+        sql_select = sql_select_f + sql_select_m + sql_select_b + sql_select_e
+        df = self.request_df(sql_select, sql_select_c)
+        return self.export(df=df,
+                    msg="- date: " + datetime.datetime.strftime(self.date, \
+                                                        "%m%d") + "\n" +
+                        "- category: " + self.category + "\n" +
+                        "- length: " + str(self.length) + "\n" +
+                        "- page: " + str(df["total"][0]) + "[" + \
+                        str(self.line_b) + "," + str(self.line_f) + "]\n" +
+                        "- table: " + self.table + "\n" +
+                        "- variable: " + self.variable + "\n" +
+                        "- debug:" + str(self.debug) + "\n" +
+                        "- fillna:" + self.fillna + "\n" +
+                        "- path:" + self.path + "\n" +
+                        "- keyword:" + self.keyword + "\n",
+                    sql="- SQL: " + sql_select + "\n" +
+                        "- SQL_total: " + sql_select_c,
+                    filename="[DataGroup]" + self.table.split("_")[-1] + "_" +
+                             self.category + "_Top500_" + self.variable + "_" +
+                             datetime.datetime.strftime(self.date, "%m%d") +
+                             str(self.length) + "(" + str(self.line_b) + "," +
+                              str(self.line_f) + ")" )
