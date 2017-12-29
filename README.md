@@ -9,5 +9,7 @@
     - Ver_03:12-27-2017
 - passwordmanager
     - test:
+- daily_panel
+    - Ver_01:12-29-2017
 
 Open Source License
