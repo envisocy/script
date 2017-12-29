@@ -105,18 +105,18 @@ class basic():
 
     def export(self, df, msg, sql, filename=""):
         if self.debug == 1:
-            print("- Running time：%.4f s" % (time.time() - time_s))
+            print("- Running time：%.4f s" % (time.time() - self.time_s))
             print(msg)
         elif self.debug == 2:
-            print("- Running time：%.4f s" % (time.time() - time_s))
+            print("- Running time：%.4f s" % (time.time() - self.time_s))
             print(sql)
         elif self.debug == 8:
             print(df)
         elif self.debug == 9:
-            print("- Running time：%.4f s" % (time.time() - time_s))
+            print("- Running time：%.4f s" % (time.time() - self.time_s))
             try:
                 df.to_csv(self.path + os.path.sep + filename + ".csv")
-                print("> 输出CSV文件：", self.path, ",", filename)
+                print("> 输出CSV文件：", self.path, os.path.sep , filename)
             except Exception as e:
                 print("> 输出CSV文件失败，错误原因：", e)
         else:
