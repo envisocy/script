@@ -4,6 +4,7 @@
 import configure
 import datetime
 import pymysql
+import numpy as np
 import pandas as pd
 import time
 import json
@@ -33,27 +34,39 @@ class basic():
             self.path = os.path.join(os.path.expanduser("~"),'Desktop')
         self.keyword = kwargs.get("keyword","日期：")
         # 替换的关键词（防止显示数字在前的异常排序）
-        self.screening = kwargs.get("screening",{})
-        if self.screening:
-            self.rankl = keargs.get["screening"].get("rankl", 0)
-            self.rankm = keargs.get["screening"].get("rankm", 500)
-            self.titler= keargs.get["screening"].get("titler", "")
-            self.storer = keargs.get["screening"].get("storer", "")
-            self.v1l = keargs.get["screening"].get("v1l", 99999999999)
-            self.v1m = keargs.get["screening"].get("v1m", 0)
-            self.v2l = keargs.get["screening"].get("v2l", 99999999999)
-            self.v2m = keargs.get["screening"].get("v2m", 0)
-            self.v3l = keargs.get["screening"].get("v3l", 99999999999)
-            self.v3m = keargs.get["screening"].get("v3m", 0)
-            self.v4l = keargs.get["screening"].get("v4l", 99999999999)
-            self.v4m = keargs.get["screening"].get("v4m", 0)
+        self.rankl = kwargs.get("rankl", 0)
+        self.rankm = kwargs.get("rankm", 500)
+        self.titler= kwargs.get("titler", "")
+        self.storer = kwargs.get("storer", "")
+        self.v1l = kwargs.get("v1l", 99999999999)
+        self.v1m = kwargs.get("v1m", 0)
+        self.v2l = kwargs.get("v2l", 99999999999)
+        self.v2m = kwargs.get("v2m", 0)
+        self.v3l = kwargs.get("v3l", 99999999999)
+        self.v3m = kwargs.get("v3m", 0)
+        self.v4l = kwargs.get("v4l", 99999999999)
+        self.v4m = kwargs.get("v4m", 0)
+        self.alg = kwargs.get("alg", {})
+        # 算法部分
+        self.alg = kwargs.get("alg","")
+        self.alpha = kwargs.get("alpha", 1.2)
+        self.beta = kwargs.get("beta", 0.2)
+        self.gamma = kwargs.get("gamma", 10)
+        self.delta = kwargs.get("delta", 0.05)
+        self.epsilon = kwargs.get("epsilon", 350)
+        self.zeta = kwargs.get("zeta", 0)
 
     def run(self, fun="a"):
         self.time_s = time.time()
         if fun == "a":
-            self.xiaobaods_a()
+            if not self.alg:
+                df = self.xiaobaods_a()
+            else:
+                df = self.xiaobaods_a_alg()
         else:
             print(" * fun not be defined!")
+        if self.debug == 6 or self.debug == 8:
+            return df
 
     def request_date(self):
         try:
@@ -110,8 +123,10 @@ class basic():
         elif self.debug == 2:
             print("- Running time：%.4f s" % (time.time() - self.time_s))
             print(sql)
+        elif self.debug == 6:
+            return df
         elif self.debug == 8:
-            print(df)
+            return df
         elif self.debug == 9:
             print("- Running time：%.4f s" % (time.time() - self.time_s))
             try:
@@ -121,7 +136,6 @@ class basic():
                 print("> 输出CSV文件失败，错误原因：", e)
         else:
             print(df.to_json(orient="index"))
-        return df
 
     def xiaobaods_a(self):
         '''
@@ -147,14 +161,20 @@ class basic():
         self.request_date()
         # SQL
         sql_select_m = ""
+        debug_6_count = 0
         for i in range(self.length):
-            sql_select_m += ",MAX(CASE ST.日期 WHEN " + str(self.date - \
+            if self.debug != 6:
+                sql_select_m += ",MAX(CASE ST.日期 WHEN " + str(self.date - \
                 datetime.timedelta(self.length - i - 1)).replace("-", "") + \
-                " THEN ST." + self.variable + " ELSE NULL END) AS `日期：" + \
-                str(self.date - datetime.timedelta(self.length - i - \
-                                                   1)).replace("-", "") + "` "
-        sql_select_re = ""
-        if self.screening:
+                " THEN ST." + self.variable + " ELSE NULL END) AS `" + \
+                self.keyword + str(self.date - datetime.timedelta(self.length -\
+                                        i - 1)).replace("-", "") + "` "
+            else:
+                debug_6_count += 1
+                sql_select_m += ",MAX(CASE ST.日期 WHEN " + str(self.date - \
+                datetime.timedelta(self.length - i - 1)).replace("-", "") + \
+                " THEN ST." + self.variable + " ELSE NULL END) AS `" + \
+                                        str(debug_6_count) + "` "
             sql_select_re = " AND CT.`热销排名`>=" + str(self.rankl) + \
                             " AND CT.`热销排名`<=" + str(self.rankm) + \
                 " AND " + sql_select_f.split(",")[4] + "<=" + str(self.v1l) + \
@@ -202,3 +222,79 @@ class basic():
                              datetime.datetime.strftime(self.date, "%m%d") +
                              str(self.length) + "(" + str(self.line_b) + "," +
                               str(self.line_f) + ")" )
+
+    def xiaobaods_a_alg(self):
+        if self.alg == "Dec":
+            '''
+            parameter
+                - alpha 排名内权重内参数 默认1.2
+                - beta 方差系数 默认0.2
+                - gamma 拟合度系数 默认10
+                - delta r2 系数 默认0.05
+                - epsilon 排名权重系数 默认350
+            '''
+            # 排序表
+            debug = 6
+            line_b = 1
+            line_f = 500
+            length = 5
+            self.alg = ""
+            self.length, length = length, self.length
+            self.line_b, line_b = line_b, self.line_b
+            self.line_f, line_f = line_f, self.line_f
+            self.debug, debug = debug, self.debug
+            df = self.run().dropna()
+            # std
+            self.variable = "支付转化率指数"
+            df_std = self.run().dropna()
+            # 还原参数
+            self.debug, debug = debug, self.debug
+            self.length, length = length, self.length
+            self.line_b, line_b = line_b, self.line_b
+            self.line_f, line_f = line_f, self.line_f
+            self.variable = "算法Dec"     # 仅考虑输出文档命名，如遇异常修改
+            df_std["std"] = np.std(df_std.loc[:,["1","2","3","4","5"]], axis=1)
+            df_std = df_std.loc[:,["宝贝链接", "std"]]
+            # 合并
+            df = pd.merge(df,df_std)
+            df["lxx"] = 10
+            df["lyy"] = (np.square(df.loc[:,"1"]) + np.square(df.loc[:,"2"]) + \
+                np.square(df.loc[:,"3"])+ np.square(df.loc[:,"4"])+ \
+                np.square(df.loc[:,"5"])) - np.square(df.loc[:,"1"] + \
+                df.loc[:,"2"]+ df.loc[:,"3"]+ df.loc[:,"4"]+ df.loc[:,"5"])/5
+            df["lxy"] = ( df.loc[:,"1"] + df.loc[:,"2"] * 2 + \
+                         df.loc[:,"3"] * 3 + df.loc[:,"4"] * 4 + \
+                         df.loc[:,"5"] * 5 ) - (df.loc[:,"1"] + \
+                        df.loc[:,"2"] + df.loc[:,"3"] + df.loc[:,"4"] + \
+                        df.loc[:,"5"]) * 3
+            # 参数
+            df["r2"] = df["lxy"]/df["lxx"] * -1
+            df["br"] = np.square(df["lxy"]/np.sqrt(df["lxx"] * df["lyy"]))
+            df["weg"] = 1/(df.loc[:,"5"] ** self.alpha)
+            df["score"] = (df.loc[:, "std"] * self.beta + df.loc[:, "br"] *\
+                self.gamma) * df.loc[:, "r2"] * self.delta * \
+                df.loc[:, "weg"] * self.epsilon
+            df.sort_values(by=["score"], ascending=False ,inplace=True)
+            # line_b/f
+            df = df.iloc[self.line_b: self.line_f]
+            return self.export(df=df,
+                        msg="- date: " + datetime.datetime.strftime(self.date, \
+                                                            "%m%d") + "\n" +
+                            "- category: " + self.category + "\n" +
+                            "- length: " + str(self.length) + "\n" +
+                            "- page: " + str(df["total"][0]) + "[" + \
+                            str(self.line_b) + "," + str(self.line_f) + "]\n" +
+                            "- table: " + self.table + "\n" +
+                            "- variable: " + self.variable + "\n" +
+                            "- debug:" + str(self.debug) + "\n" +
+                            "- fillna:" + self.fillna + "\n" +
+                            "- path:" + self.path + "\n" +
+                            "- keyword:" + self.keyword + "\n",
+                        sql="- SQL: None",
+                        filename="[DataGroup]" + self.table.split("_")[-1] + "_" +
+                                 self.category + "_Top500_" + self.variable + "_" +
+                                 datetime.datetime.strftime(self.date, "%m%d") +
+                                 str(self.length) + "(" + str(self.line_b) + "," +
+                                  str(self.line_f) + ")" )
+        else:
+            return None
