@@ -9,6 +9,7 @@ import pandas as pd
 import time
 import json
 import os
+from dateutil.parser import parse
 
 
 class basic():
@@ -22,7 +23,8 @@ class basic():
         if self.line_b > self.line_f:
             self.line_b, self.line_f = self.line_f, self.line_b
         self.date = kwargs.get("date", datetime.datetime.today().date() -
-                               datetime.timedelta(1))   # 抽出数据筛选日期
+                               datetime.timedelta(1))
+        self.date = parse(self.date).date()# 抽出数据筛选日期
         self.category = kwargs.get("category", "牛仔裤")     # 抽出数据筛选“类目”
         self.length = kwargs.get("length", 7)     # 针对二次筛选需求的上溯天数
         self.table = kwargs.get("table", "")      # 具体的数据表，具体函数需指定
@@ -38,14 +40,14 @@ class basic():
         self.rankm = kwargs.get("rankm", 500)
         self.titler= kwargs.get("titler", "")
         self.storer = kwargs.get("storer", "")
-        self.v1l = kwargs.get("v1l", 99999999999)
-        self.v1m = kwargs.get("v1m", 0)
-        self.v2l = kwargs.get("v2l", 99999999999)
-        self.v2m = kwargs.get("v2m", 0)
-        self.v3l = kwargs.get("v3l", 99999999999)
-        self.v3m = kwargs.get("v3m", 0)
-        self.v4l = kwargs.get("v4l", 99999999999)
-        self.v4m = kwargs.get("v4m", 0)
+        self.v1l = kwargs.get("v1l", 9999999999)
+        self.v1m = kwargs.get("v1m", -9999999999)
+        self.v2l = kwargs.get("v2l", 9999999999)
+        self.v2m = kwargs.get("v2m", -9999999999)
+        self.v3l = kwargs.get("v3l", 9999999999)
+        self.v3m = kwargs.get("v3m", -9999999999)
+        self.v4l = kwargs.get("v4l", 9999999999)
+        self.v4m = kwargs.get("v4m", -9999999999)
         self.alg = kwargs.get("alg", {})
         # 算法部分
         self.alg = kwargs.get("alg","")
