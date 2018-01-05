@@ -6,7 +6,7 @@
 - xiaobaods_input
     - Ver_10:12-27-2017
 - xiaobaods_output
-    - Ver_05:01-04-2017
+    - Ver_06:01-05-2017
 - passwordmanager
     - test:
 - daily_panel

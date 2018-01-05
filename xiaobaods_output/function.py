@@ -22,9 +22,12 @@ class basic():
         self.line_f = kwargs.get("line_f", 20)   # 最终输出条数结束
         if self.line_b > self.line_f:
             self.line_b, self.line_f = self.line_f, self.line_b
-        self.date = kwargs.get("date", datetime.datetime.today().date() -
-                               datetime.timedelta(1))
-        self.date = parse(self.date).date()# 抽出数据筛选日期
+        self.date = kwargs.get("date", datetime.datetime.strftime( \
+        datetime.datetime.today().date() -datetime.timedelta(1), "%Y-%m-%d"))
+        self.date_range = kwargs.get("date_range", datetime.datetime.strftime(\
+        datetime.datetime.today().date() - datetime.timedelta(1), "%Y-%m-%d"))
+        self.date = parse(self.date).date() # 抽出数据筛选日期
+        self.date_range = parse(self.date_range).date() # 抽出数据筛选日期
         self.category = kwargs.get("category", "牛仔裤")     # 抽出数据筛选“类目”
         self.length = kwargs.get("length", 7)     # 针对二次筛选需求的上溯天数
         self.table = kwargs.get("table", "")      # 具体的数据表，具体函数需指定
@@ -65,6 +68,12 @@ class basic():
                 df = self.xiaobaods_a()
             else:
                 df = self.xiaobaods_a_alg()
+        elif fun == "ps":
+            df = self.xiaobaods_ps()
+        elif fun == "pi":
+            if self.variable == "热销排名":
+                self.variable = "芮丽娅旗舰店"
+            df = self.xiaobaods_pi()
         else:
             print(" * fun not be defined!")
         if self.debug == 6 or self.debug == 8:
@@ -93,7 +102,8 @@ class basic():
         if self.date < date_floor + datetime.timedelta (self.length - 1):
             self.date = date_floor + datetime.timedelta (self.length - 1)
 
-    def request_df(self, sql, sql_total):
+    def request_df(self, sql, sql_total=""):
+        df = None
         try:
             conn = pymysql.connect(host=self.sql["host"],
                                   port=int(self.sql["port"]),
@@ -101,9 +111,10 @@ class basic():
                                   passwd=self.sql["passwd"],
                                   charset=self.sql["charset"],
                                   db=self.sql["db"])
-            total = pd.read_sql_query(sql_total, conn).iloc[0, 0]
             df = pd.read_sql_query(sql, conn)
-            df["total"] = total
+            if sql_total:
+                total = pd.read_sql_query(sql_total, conn).iloc[0, 0]
+                df["total"] = total
             conn.close()
         except Exception as e:
             print(e)
@@ -126,7 +137,12 @@ class basic():
             print("- Running time：%.4f s" % (time.time() - self.time_s))
             print(sql)
         elif self.debug == 6:
+            '''
+            算法接口，标题调整为序列
+            '''
             return df
+        elif self.debug == 7:
+            print(df)
         elif self.debug == 8:
             return df
         elif self.debug == 9:
@@ -300,3 +316,45 @@ class basic():
                                   str(self.line_f) + ")" )
         else:
             return None
+
+    def xiaobaods_ps(self):
+        '''
+        公司所有店铺ERP销售额及件数查询
+        self.date, self.date_range
+        '''
+        self.sql["db"] = "baoersqlerp"
+        self.table = "ERP_Sales_Together"
+        SQL = "SELECT `店铺`, `组长`, `项目组`, sum(`销售额`) as `销售额`, \
+        sum(`件数`) as `件数` From " + self.table + " WHERE `交易时间`>='" + \
+        datetime.datetime.strftime(self.date, '%Y-%m-%d') + "' AND `交易时间`<=\
+        '" + datetime.datetime.strftime(self.date_range, '%Y-%m-%d') + \
+        "' GROUP BY `店铺` ORDER BY `销售额` DESC;"
+        df = self.request_df(SQL)
+        return self.export(df=df,
+                    msg="- date: " + datetime.datetime.strftime(self.date, \
+                                                        "%Y-%m-%d") + "\n" +
+                        "- date_range: " + datetime.datetime.strftime(\
+                                        self.date_range, "%Y-%m-%d") + "\n" ,
+                    sql="- SQL: " + SQL,
+                    filename="[DataGroup]Shop_sales_rankings(" +
+                             datetime.datetime.strftime(self.date, "%m%d") +
+                             "," + datetime.datetime.strftime(self.date_range, \
+                                                              "%m%d") + ")")
+
+    def xiaobaods_pi(self):
+        '''
+        店铺ERP销售额及件数查询
+        self.variable
+        '''
+        self.sql["db"] = "baoersqlerp"
+        self.table = "ERP_Sales_Together"
+        SQL = "SELECT `交易时间`, `销售额`, `件数` From ERP_Sales_Together WHERE \
+        `店铺`='" + self.variable + "' ORDER BY `交易时间` DESC LIMIT 90;"
+        df = self.request_df(SQL)
+        df.sort_values("交易时间", inplace=True)
+        df.set_index("交易时间", inplace=True)
+        return self.export(df=df,
+                    msg="- variable(store): " + self.variable + "\n",
+                    sql="- SQL: " + SQL,
+                    filename="[DataGroup]Shop_sales_rankings(" + self.variable +
+                    ")",)
