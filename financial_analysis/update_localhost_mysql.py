@@ -1,10 +1,11 @@
 #!usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-import financial_analysis.data_source.caibaoshuo
+import financial_analysis.data_source
 import pymysql
 from datetime import datetime
 import time
+import pandas as pd
 
 
 def write_to_mysql(TableName, dic):
@@ -39,7 +40,7 @@ def write_to_mysql(TableName, dic):
         cursor.close()
         conn.close()
 
-cbs = caibaoshuo()
+cbs = financial_analysis.data_source.caibaoshuo()
 code_list = cbs.request_list(code="")
 for code in code_list:
     data = cbs.get_data(sheets="oj", code=code)

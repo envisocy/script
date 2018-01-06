@@ -1,17 +1,16 @@
-#!usr/bin/env python3
-# -*- coding:utf-8 -*-
-
+import pandas as pd
+import pymysql
+import time
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 import requests
-import configure
 from financial_analysis.config import *
 
 class caibaoshuo():
     '''
     caibaoshuo.cn API 2018
     '''
-    import numpy as np
-    import pandas as pd
 
     def __init__(self, data_sources="caibaoshuo"):
         import configure
@@ -33,7 +32,6 @@ class caibaoshuo():
             - 000000: 全部公司信息
             - 000001: 例：中国平安
         '''
-        import requests
         # "cp" 为1.0版本的接口，1.1版本沿用
         # "oj" 为1.0版本的接口
         # "mj" 为1.1版本的接口，添加了两个变量，但未测试通过
@@ -55,22 +53,34 @@ class caibaoshuo():
         # requests
         response = requests.get(url)
         if response.status_code == 200:
-            return eval(response.text.replace("null", "np.nan"))['data']
+            return eval(response.text.replace("null", "0"))['data']
         else:
             print(response.status_code)
             return None
 
     def industry_list(self, industry="互联网", companies=""):
+        '''
+        通过行业返回列表
+        '''
         if not companies:
             companies = self.get_data("cp", "000000")
         df = pd.DataFrame(companies)
-        return df.loc[df["industry"] == industry, "code"].tolist()
+        if industry:
+            return df.loc[df["industry"] == industry, "code"].tolist()
+        else:
+            return df.loc[:, "code"].tolist()
 
     def request_list(self, code="000002"):
+        '''
+        通过code返回列表
+        '''
         companies = self.get_data(sheets="cp", code="000000")
-        df = pd.DataFrame(companies)
-        industry = df.loc[df["code"] == code,"industry"].iloc[0]
-        return self.industry_list(industry=industry, companies=companies)
+        if code=="000000" or code=="":
+            return self.industry_list(industry="", companies=companies)
+        else:
+            df = pd.DataFrame(companies)
+            industry = df.loc[df["code"] == code,"industry"].iloc[0]
+            return self.industry_list(industry=industry, companies=companies)
 
     def list_to_df(self, code_list, sheets="mj", variable="grossMargin_ratio"):
         import time
