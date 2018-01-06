@@ -15,7 +15,6 @@ build
 *.ini
 *.conf
 *.pkl
-config.py
 
 # My configurations:
 Thumbs.db

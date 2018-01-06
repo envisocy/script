@@ -12,6 +12,6 @@
 - daily_panel
     - Ver_01:12-29-2017
 - financial_analysis
-    - test:
+    - Ver_01:01-07-2018
 
 Open Source License
