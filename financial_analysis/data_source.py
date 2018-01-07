@@ -2,8 +2,8 @@ import pandas as pd
 import pymysql
 import time
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+#import matplotlib.pyplot as plt
+#import seaborn as sns
 import requests
 from financial_analysis.config import *
 
@@ -19,12 +19,13 @@ class caibaoshuo():
         else:
             self.sql = configure.echo(data_sources)["config"]
 
-    def get_data(self, sheets="mj", code="000001"):
+    def get_data(self, code="000001", sheets="mj"):
         '''
         Parameter:
         - sheets(str):
             - cp: company_information 公司信息
             - mj: financial_analysis_table 财务分析表
+            - oj: financial_analysis_table 财务分析表V_1.0格式
             - bs: balance_sheets 资产负债表
             - pl: income_statements 利润表
             - cf: cash_flow_statements 现金流量表
@@ -35,12 +36,12 @@ class caibaoshuo():
         # "cp" 为1.0版本的接口，1.1版本沿用
         # "oj" 为1.0版本的接口
         # "mj" 为1.1版本的接口，添加了两个变量，但未测试通过
-        # "bl","ic","cf" 为1.0版本接口，不知道会不会弃用
+        # "bs","is","cf" 为1.0版本接口，不知道会不会弃用
         part = {"cp": "companies", "company_information": "companies",
                 "oj": "mjanalyses",
                 "mj": "genealsheets", "financial_analysis_table": "genealsheets",
-                "bl": "bssheets", "balance_sheets": "bssheets",
-                "ic": "plsheets", "income_statements": "plsheets",
+                "bs": "bssheets", "balance_sheets": "bssheets",
+                "is": "plsheets", "income_statements": "plsheets",
                 "cf": "cfsheets", "cash_flow_statements": "cfsheets"
                }
         if sheets not in part:

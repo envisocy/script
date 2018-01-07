@@ -1,15 +1,44 @@
 #!usr/bin/env python3
 # -*- coding:utf-8 -*-
 
+# 公司基本数据
+cp_columns = {
+    "code":"代码",
+    "name":"名称",
+    "industry":"所属行业",
+    "area":"地区",
+    "pe":"市盈率",
+    "outstanding":"流通股本(亿)",
+    "totals":"总股本(亿)",
+    "totalAssets":"总资产(万)",
+    "liquidAssets":"流动资产",
+    "fixedAssets":"固定资产",
+    "reserved":"公积金",
+    "reservedPerShare":"每股公积金",
+    "esp":"每股收益",
+    "bvps":"每股净资",
+    "pb":"市净率",
+    "timeToMarket":"上市日期",
+    "undp":"未分利润",
+    "perundp":"每股未分配",
+    "rev":"收入同比(%)",
+    "profit":"利润同比(%)",
+    "gpr":"毛利率(%)",
+    "npr":"净利润率(%)",
+    "holders":"股东人数",
+}
+
+
 # MJ 常规标题 V_1.0
-caibaoshuo_common_columns ={
+cm_columns ={
     "caibaoshuo_url":"财报说链接",
     "end_month":"月份",
     "end_year":"年份",
 }
 
-# MJ 比率分析表 V_1.1
-caibaoshuo_geneal_sheets_columns = {
+# MJ 比率分析表 V_1.2
+
+mj_columns = {
     "cash_ratio":"现金与约当现金比率(占总资产%)",
     "receiv_ratio":"应收账款比率(占总资产%)",
     "inventories_ratio":"存货比率(占总资产%)",
@@ -37,8 +66,47 @@ caibaoshuo_geneal_sheets_columns = {
     "grossMargin_ratio":"毛利率(%)",
     "operatingProfit_ratio":"营业利润率(%)",
     "netProfit_ratio":"净利率(%)",
-    "scaleCharges_ratio": "营业费用率(%)",
-    "safety_ratio":"安全边际率(%)",
+    "scaleCharges_ratio":"营业费用率(%)",  # NEW
+    "safety_ratio":"安全边际率(%)",    # NEW
+    "eps":"基本每股收益(每股盈余EPS)",
+    "cashflow_ratio":"现金流量比率",
+    "cashflowAdequacy_ratio":"现金流量充当比率",
+    "cashReinvestment_ratio":"现金再投资比率",
+    "net_operate_cash_flow":"经营活动现金流量净额",    # NEW
+    "net_invest_cash_flow":"投资活动现金流量净额",    # NEW
+    "net_finance_cash_flow":"融资活动现金流量净额",    # NEW
+}
+
+# MJ 比率分析表 V_1.0
+
+oj_columns = {
+    "cash_ratio":"现金与约当现金比率(占总资产%)",
+    "receiv_ratio":"应收账款比率(占总资产%)",
+    "inventories_ratio":"存货比率(占总资产%)",
+    "TCA_ratio":"流动资产比率(占总资产%)",
+    "TNCA_ratio":"非流动资产比率(占总资产%)",
+    "TAssets_ratio":"总资产比率(占总资产%)",
+    "AP_ratio":"应付账款比率(占总资产%)",
+    "TCL_ratio":"流动负债比率(占总资产%)",
+    "TNCL_ratio":"非流动负债比率(占总资产%)",
+    "TShEquity_ratio":"股东权益比率(占总资产%)",
+    "TLiabEquity_ratio":"负债和所有者权益比率(占总资产%)",
+    "debt_ratio":"负债占资产比率(%)",
+    "longterm_ratio":"长期资金占不动产及设备比率(%)",
+    "current_ratio":"流动比率(%)",
+    "quick_ratio":"速动比率(%)",
+    "receivable_turnover_ratio":"应收账款周转率(次/年)",
+    "receivable_turnover_date":"应收账款周转天数(天)",
+    "inventories_turnover_ratio":"存货周转率(次/年)",
+    "inventories_turnover_date":"存货周转天数(天)",
+    "fixedAssets_turnover_ratio":"固定资产周转率(次/年)",
+    "TAssets_turnover_ratio":"总资产周转率(次/年)",
+    "roa":"ROA=资产收益率(%)",
+    "roe":"ROE=净资产收益率(%)",
+    "preTaxNetIncome_ratio":"税前纯益占实收资本比率(%)",
+    "grossMargin_ratio":"毛利率(%)",
+    "operatingProfit_ratio":"营业利润率(%)",
+    "netProfit_ratio":"净利率(%)",
     "eps":"基本每股收益(每股盈余EPS)",
     "cashflow_ratio":"现金流量比率",
     "cashflowAdequacy_ratio":"现金流量充当比率",
@@ -46,7 +114,7 @@ caibaoshuo_geneal_sheets_columns = {
 }
 
 # caibaoshuo 资产负债表 V_1.0
-caibaoshuo_bssheets_columns = {
+bs_columns = {
     "cashCEquiv":"货币资金",
     "clientDepos":"客户资金存款",
     "tradingFA":"交易性金融资产",
@@ -187,7 +255,7 @@ caibaoshuo_bssheets_columns = {
 
 # caibaoshuo 利润表 V_1.0
 
-caibaoshuo_plsheets_columns = {
+is_columns = {
     "TRevenue":"营业总收入",
     "revenue":"营业收入",
     "NIntIncome":"利息净收入",
@@ -263,7 +331,7 @@ caibaoshuo_plsheets_columns = {
 
 # caibaoshuo 现金流量表 V_1.0
 
-caibaoshuo_cfsheets_columns = {
+cf_columns = {
     "CFrSaleGS":"销售商品、提供劳务收到的现金",
     "refundOfTax":"收到的税费返还",
     "NDeposIncrCFI":"客户存款和同业存放款项净增加额",
