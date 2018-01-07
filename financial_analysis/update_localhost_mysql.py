@@ -44,12 +44,9 @@ def write_to_mysql(TableName, dic):
     # 记录日志
     try:
         cursor.execute("INSERT INTO record VALUES ('" + str(dic["code"]) + \
-                       "','" + str(dic["end_year"]) + "','" + \
-                       datetime.strftime(datetime.now(), \
-                                         "%Y-%m-%d %H:%M:%S %f") + "');")
+                       "','" + str(dic["end_year"]) + "','" + now_time() + "');")
     except:
-        cursor.execute("UPDATE record SET `time`='" + datetime.strftime(datetime.now(), \
-                          "%Y-%m-%d %H:%M:%S %f") + "' WHERE `code`='" + \
+        cursor.execute("UPDATE record SET `time`='" + now_time() + "' WHERE `code`='" + \
                        str(dic["code"]) + "' AND `year`='" + \
                        str(dic["end_year"]) + "';")
     conn.commit()
@@ -67,17 +64,35 @@ def return_exist_list():
     exist_code_list = [i[0] for i in exist_code_list]
     return exist_code_list
 
+def now_time():
+    return datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S %f")
+
+print(" - [" + now_time() + "] 程序开始，初始化中...")
 cbs = financial_analysis.data_source.caibaoshuo()
+print(" - [" + now_time() + "] 初始化完毕，读取总列表中...")
 code_list = cbs.request_list(code="")
-print(" - Total: " + str(len(code_list)))
+print(" - [" + now_time() + "] Total: " + str(len(code_list)))
 exist_code_list = return_exist_list()
-print(" - Exist: " + str(len(exist_code_list)))
+print(" - [" + now_time() + "] Exist: " + str(len(exist_code_list)))
 for i in exist_code_list:
     code_list.remove(i)
-print(" - Remaining: " + str(len(code_list)))
+print(" - [" + now_time() + "] Remaining: " + str(len(code_list)))
 for code in code_list:
     data = cbs.get_data(sheets="mj", code=code)
-    print(code + " - " + datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S %f"))
+    if not data: # 银行，券商等
+        print(" * [" + now_time() + "] 忽略：" + code + "中...")
+        try:
+            conn = pymysql.connect(host="localhost", user="root", passwd="123456", db="financial_statements")
+            cursor=conn.cursor()
+            cursor.execute("INSERT INTO record VALUES ('" + str(code) + "','2000','" + now_time() + "');")
+            conn.commit()
+            cursor.close()
+            conn.close()
+        except:
+            print(" * [" + now_time() + "] 写入忽略列表失败！")
+        continue
+    else:
+        print(" - [" + now_time() + "] 处理：" + code + "中...")
     for i in data:
         i["code"] = code
         write_to_mysql("mjsheets", i)
