@@ -91,6 +91,9 @@ for code in code_list:
         except:
             print(" * [" + now_time() + "] 写入忽略列表失败！")
         continue
+    elif data=="Timeout":
+        print(" - [" + now_time() + "] 连接超时，跳过处理：" + code + "中...")
+        continue
     else:
         print(" - [" + now_time() + "] 处理：" + code + "中...")
     for i in data:

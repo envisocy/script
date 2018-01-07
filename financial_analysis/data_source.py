@@ -52,7 +52,14 @@ class caibaoshuo():
         else:
             url = "http://caibaoshuo.com/api/v1/" + part[sheets] + "/" + code + "?auth_token=" + self._api_token
         # requests
-        response = requests.get(url)
+        try:
+            response = requests.get(url, timeout=3)
+        except requests.exceptions.ConnectTimeout:
+            print(" * 连接超时！Error_1")
+            return "Timeout"
+        except requests.exceptions.Timeout:
+            print(" * 连接超时！Error_2")
+            return "Timeout"
         if response.status_code == 200:
             return eval(response.text.replace("null", "0"))['data']
         else:
