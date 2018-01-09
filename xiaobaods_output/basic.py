@@ -12,9 +12,8 @@ import os
 from dateutil.parser import parse
 
 
-class basic():
+class function():
     def __init__(self, **kwargs):
-
         self.sql = configure.echo(kwargs.get("sql", "xiaobaods_r"))["config"]
         # 基于数据库configure的选择
         self.sql["db"] = "baoersqlbasic"
@@ -51,7 +50,6 @@ class basic():
         self.v3m = kwargs.get("v3m", -9999999999)
         self.v4l = kwargs.get("v4l", 9999999999)
         self.v4m = kwargs.get("v4m", -9999999999)
-        self.alg = kwargs.get("alg", {})
         # 算法部分
         self.alg = kwargs.get("alg","")
         self.alpha = kwargs.get("alpha", 1.2)

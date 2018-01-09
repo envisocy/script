@@ -8,6 +8,14 @@ try:
 except:
     argv = {}
 
-import xiaobaods_output.function as function
-basic = function.basic(**argv)
-basic.run(argv.get("fun","a"))
+import xiaobaods_output.basic as basic
+import xiaobaods_output.reprocessing as reprocessing
+
+fun = argv.get("fun")
+
+if fun in ["pr"]:
+    program = reprocessing.function(**argv)
+    program.run(argv.get("fun", "pr"))
+else:
+    program = basic.function(**argv)
+    program.run(argv.get("fun", "a"))

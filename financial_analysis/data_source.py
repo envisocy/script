@@ -53,7 +53,7 @@ class caibaoshuo():
             url = "http://caibaoshuo.com/api/v1/" + part[sheets] + "/" + code + "?auth_token=" + self._api_token
         # requests
         try:
-            response = requests.get(url, timeout=3)
+            response = requests.get(url, timeout=10)
         except requests.exceptions.ConnectTimeout:
             print(" * 连接超时！Error_1")
             return "Timeout"
