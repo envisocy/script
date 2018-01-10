@@ -344,14 +344,19 @@ class function():
         if not self.cid:
             return None
         time_s = time.time()
-        if self.table not in ["bc_attribute_granularity_sales", "bc_attribute_granularity_visitor"]:
+        if self.table not in ["bc_attribute_granularity_sales",
+                              "bc_attribute_granularity_visitor"]:
             self.table = "bc_attribute_granularity_sales"
         if self.table == "bc_attribute_granularity_sales":
-            sql_select = "SELECT `日期`,`热销排名`,`商品信息`,`支付子订单数`,`交易增长幅度`,`支付转化率指数`,`主图缩略图` FROM " + self.table + \
-                           " where `类目`='" + self.category + "' AND `宝贝链接` like '%id=" + self.cid + "';"
+            sql_select = "SELECT `日期`,`热销排名`,`商品信息`,`支付子订单数`, \
+            `交易增长幅度`,`支付转化率指数`,`主图缩略图` FROM " + self.table + \
+            " where `类目`='" + self.category + "' AND `宝贝链接` like '%id=" + \
+            self.cid + "';"
         elif self.table == "bc_attribute_granularity_visitor":
-            sql_select = "SELECT `日期`,`热销排名`,`商品信息`,`流量指数`,`搜索人气`,`支付子订单数`,`主图缩略图` FROM " + self.table + \
-                           " where `类目`='" + self.category + "' AND `宝贝链接` like '%id=" + self.cid + "';"
+            sql_select = "SELECT `日期`,`热销排名`,`商品信息`,`流量指数`,\
+            `搜索人气`,`支付子订单数`,`主图缩略图` FROM " + self.table + \
+            " where `类目`='" + self.category + "' AND `宝贝链接` like '%id=" + \
+            self.cid + "';"
         df = self.request_df(sql_select)
         # def-timeline
 
