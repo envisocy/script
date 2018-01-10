@@ -13,6 +13,8 @@ from dateutil.parser import parse
 
 
 class function():
+    '''
+    '''
     def __init__(self, **kwargs):
         self.sql = configure.echo(kwargs.get("sql", "xiaobaods_r"))["config"]
         # 基于数据库configure的选择
@@ -37,6 +39,7 @@ class function():
         if not self.path:
             self.path = os.path.join(os.path.expanduser("~"),'Desktop')
         self.keyword = kwargs.get("keyword","日期：")
+        self.cid = kwargs.get("cid","")
         # 替换的关键词（防止显示数字在前的异常排序）
         self.rankl = kwargs.get("rankl", 0)
         self.rankm = kwargs.get("rankm", 500)
@@ -66,6 +69,8 @@ class function():
                 df = self.xiaobaods_a()
             else:
                 df = self.xiaobaods_a_alg()
+        elif fun=="al":
+            df = self.xiaobaods_al()
         elif fun == "ps":
             df = self.xiaobaods_ps()
         elif fun == "pi":
@@ -78,6 +83,10 @@ class function():
             return df
 
     def request_date(self):
+        '''
+        查询表中的时间范围，通过约束
+        直接调整self.date的值
+        '''
         try:
             conn = pymysql.connect(host=self.sql["host"],
                                   port=int(self.sql["port"]),
@@ -101,6 +110,10 @@ class function():
             self.date = date_floor + datetime.timedelta (self.length - 1)
 
     def request_df(self, sql, sql_total=""):
+        '''
+        输入 SQL 语句（sql_total为翻页必须，无需翻页则不需要）
+        输出 df 表
+        '''
         df = None
         try:
             conn = pymysql.connect(host=self.sql["host"],
@@ -128,6 +141,11 @@ class function():
         return df
 
     def export(self, df, msg, sql, filename=""):
+        '''
+        格式化输出模块
+        统一debug的返回接口
+        必要参数：df, msg, sql(仅为显示输出), filename
+        '''
         if self.debug == 1:
             print("- Running time：%.4f s" % (time.time() - self.time_s))
             print(msg)
@@ -155,7 +173,9 @@ class function():
 
     def xiaobaods_a(self):
         '''
-        12-26-2017
+        类目趋势 核心表
+        必要参数：category, variable, length, line_b, line_f,
+        可选参数: table, fillna, debug, path,
         '''
         if self.table not in ["bc_attribute_granularity_sales",
                               "bc_attribute_granularity_visitor"]:
@@ -242,7 +262,9 @@ class function():
     def xiaobaods_a_alg(self):
         if self.alg == "Dec":
             '''
-            parameter
+            类目趋势 算法排序 表
+            必要参数：category，date
+            可选参数：self.table, line_b, line_f
                 - alpha 排名内权重内参数 默认1.2
                 - beta 方差系数 默认0.2
                 - gamma 拟合度系数 默认10
@@ -298,8 +320,6 @@ class function():
                                                             "%m%d") + "\n" +
                             "- category: " + self.category + "\n" +
                             "- length: " + str(self.length) + "\n" +
-                            "- page: " + str(df["total"][0]) + "[" + \
-                            str(self.line_b) + "," + str(self.line_f) + "]\n" +
                             "- table: " + self.table + "\n" +
                             "- variable: " + self.variable + "\n" +
                             "- debug:" + str(self.debug) + "\n" +
@@ -315,10 +335,68 @@ class function():
         else:
             return None
 
+    def xiaobaods_al(self):
+        '''
+        对特定宝贝变量的搜索
+        必要参数: cid, category
+        可选参数: table, fillna, debug, path
+        '''
+        if not self.cid:
+            return None
+        time_s = time.time()
+        if self.table not in ["bc_attribute_granularity_sales", "bc_attribute_granularity_visitor"]:
+            self.table = "bc_attribute_granularity_sales"
+        if self.table == "bc_attribute_granularity_sales":
+            sql_select = "SELECT `日期`,`热销排名`,`商品信息`,`支付子订单数`,`交易增长幅度`,`支付转化率指数`,`主图缩略图` FROM " + self.table + \
+                           " where `类目`='" + self.category + "' AND `宝贝链接` like '%id=" + self.cid + "';"
+        elif self.table == "bc_attribute_granularity_visitor":
+            sql_select = "SELECT `日期`,`热销排名`,`商品信息`,`流量指数`,`搜索人气`,`支付子订单数`,`主图缩略图` FROM " + self.table + \
+                           " where `类目`='" + self.category + "' AND `宝贝链接` like '%id=" + self.cid + "';"
+        df = self.request_df(sql_select)
+        # def-timeline
+
+        def creation_date_list(min, max):
+            date_list = []
+            date = min
+            while date != max + datetime.timedelta(1):
+                date_list.append(date)
+                date += datetime.timedelta(1)
+            return date_list
+        # sort
+        df.sort_values(by=["日期"], inplace=True)
+        # 重复项处理
+        df["商品信息"] = df["商品信息"].apply(lambda s: s.split(" 价格")[0])
+        df.loc[df["主图缩略图"].duplicated(keep="first")==True, "主图缩略图"] = np.nan
+        df.loc[df["商品信息"].duplicated(keep="first")==True, "商品信息"] = np.nan
+        # 时间序列拓展
+        date_list = creation_date_list(min(df["日期"]), max(df["日期"]))
+        df1 = pd.DataFrame(date_list, columns=["日期"])
+        df = pd.merge(df1, df, how="outer", left_on="日期", right_on="日期")
+        # 时间序列控制处理
+        df.loc[:, "热销排名"].fillna(501, inplace=True)
+        if self.fillna == "":
+            df.loc[:, "商品信息"].fillna("-", inplace=True)
+            df.loc[:, "主图缩略图"].fillna("-", inplace=True)
+        else:
+            df.loc[:, "商品信息"].fillna(self.fillna, inplace=True)
+            df.loc[:, "主图缩略图"].fillna(self.fillna, inplace=True)
+        df.fillna(0, inplace=True)
+        return self.export(df=df,
+                    msg="- cid: " + self.cid + "\n" +
+                        "- category: " + self.category + "\n" +
+                        "- table: " + self.table + "\n" +
+                        "- variable: " + self.variable + "\n" +
+                        "- debug:" + str(self.debug) + "\n" +
+                        "- fillna:" + self.fillna + "\n" +
+                        "- path:" + self.path + "\n" ,
+                    sql="- SQL: " + sql_select + "\n" ,
+                    filename="[DataGroup]" + self.table.split("_")[-1] + "_ID=" +
+                             self.cid + "(" + self.category + ")")
+
     def xiaobaods_ps(self):
         '''
         公司所有店铺ERP销售额及件数查询
-        self.date, self.date_range
+        必要参数: self.date, self.date_range
         '''
         self.sql["db"] = "baoersqlerp"
         self.table = "ERP_Sales_Together"
@@ -342,7 +420,7 @@ class function():
     def xiaobaods_pi(self):
         '''
         店铺ERP销售额及件数查询
-        self.variable
+        必要参数: self.variable(店铺名)
         '''
         self.sql["db"] = "baoersqlerp"
         self.table = "ERP_Sales_Together"

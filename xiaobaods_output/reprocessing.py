@@ -120,7 +120,8 @@ class function():
             category_list = ["牛仔裤", "打底裤", "休闲裤"]
         for category in category_list:
             print(" - " + category)
-            df = self.pr_df(date=date, date_range=date_range, alg="Dec")
+            df = self.pr_df(date=date, date_range=date_range, category=category,
+                            alg="Dec")
             df["category"] = category
             df["alg"] = alg
             df["rank"] = df.index + 1

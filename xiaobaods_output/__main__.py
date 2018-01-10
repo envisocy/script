@@ -13,7 +13,7 @@ import xiaobaods_output.reprocessing as reprocessing
 
 fun = argv.get("fun")
 
-if fun in ["pr"]:
+if fun in ["pr"]:   # 基于reprocessing所有的fun列表
     program = reprocessing.function(**argv)
     program.run(argv.get("fun", "pr"))
 else:
