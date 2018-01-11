@@ -18,3 +18,14 @@ elif argv == 8:
     xiaobaods_input.Update_ERP_Sales_Together.run()
 elif argv == 9:
     xiaobaods_input.Business_adviser_parser.run()
+elif argv == 90:
+    import xiaobaods_output.reprocessing as rep
+    func = rep.function()
+    func.pr_input()
+elif argv // 10 == 9 and argv % 10 < 10:
+    import datetime
+    import xiaobaods_output.reprocessing as rep
+    func = rep.function()
+    func.pr_input(date=datetime.datetime.strftime(
+        datetime.datetime.now().date() -datetime.timedelta(argv % 10 + 1),
+        "%Y-%m-%d"))
