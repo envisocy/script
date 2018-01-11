@@ -11,6 +11,8 @@ import json
 import os
 from dateutil.parser import parse
 
+from xiaobaods_output.config import *
+
 
 class function():
     '''
@@ -30,6 +32,8 @@ class function():
         self.date = parse(self.date).date() # 抽出数据筛选日期
         self.date_range = parse(self.date_range).date() # 抽出数据筛选日期
         self.category = kwargs.get("category", "牛仔裤")     # 抽出数据筛选“类目”
+        self.classification = kwargs.get("classification", "款式")  # 分类
+        self.attributes = kwargs.get("attributes", "铅笔裤") # 二级分类
         self.length = kwargs.get("length", 7)     # 针对二次筛选需求的上溯天数
         self.table = kwargs.get("table", "")      # 具体的数据表，具体函数需指定
         self.variable = kwargs.get("variable", "热销排名")# 二次筛选需求的显示变量
@@ -69,6 +73,8 @@ class function():
                 df = self.xiaobaods_a()
             else:
                 df = self.xiaobaods_a_alg()
+        elif fun=="c":
+            df = self.xiaobaods_c()
         elif fun=="al":
             df = self.xiaobaods_al()
         elif fun == "ps":
@@ -82,7 +88,7 @@ class function():
         if self.debug == 6 or self.debug == 8:
             return df
 
-    def request_date(self):
+    def request_date(self, fun="a"):
         '''
         查询表中的时间范围，通过约束
         直接调整self.date的值
@@ -95,8 +101,13 @@ class function():
                                   charset=self.sql["charset"],
                                   db=self.sql["db"])
             cursor = conn.cursor()
-            cursor.execute("SELECT min(`日期`),max(`日期`) from " + self.table +
-                           " where `类目`='" + self.category + "';")
+            if fun=="a":
+                cursor.execute("SELECT min(`日期`),max(`日期`) from " + self.table +
+                                " where `类目`='" + self.category + "';")
+            elif fun=="c":
+                cursor.execute("SELECT min(`日期`),max(`日期`) from "+ self.table +
+                    " where `类目`='" + self.category + "' and `类型`='" +
+                    self.classification + "' and `属性`='" + self.attributes + "';")
             date_limit = cursor.fetchall()
             date_floor = date_limit[0][0]
             date_ceiling = date_limit[0][1]
@@ -251,8 +262,97 @@ class function():
                         "- fillna:" + self.fillna + "\n" +
                         "- path:" + self.path + "\n" +
                         "- keyword:" + self.keyword + "\n",
-                    sql="- SQL: " + sql_select + "\n" +
-                        "- SQL_total: " + sql_select_c,
+                    sql="- SQL: \n" + sql_select + "\n" +
+                        "- SQL_total: \n" + sql_select_c,
+                    filename="[DataGroup]" + self.table.split("_")[-1] + "_" +
+                             self.category + "_Top500_" + self.variable + "_" +
+                             datetime.datetime.strftime(self.date, "%m%d") +
+                             str(self.length) + "(" + str(self.line_b) + "," +
+                              str(self.line_f) + ")" )
+
+    def xiaobaods_c(self):
+        '''
+        属性趋势 核心表
+        必要参数：category, classification, attributes, variable, length,
+        line_b, line_f,
+        可选参数: table, fillna, debug, path,
+        '''
+        self.table = "bc_category_granularity"
+        if (self.category not in cfg_goal) or (self.classification not in
+                            cfg_goal[self.category]) or (self.attributes not in
+                            cfg_goal[self.category][self.classification]):
+            self.category = "牛仔裤"
+            self.classification = "款式"
+            self.attributes = "铅笔裤"
+        self.request_date()
+        # SQL
+        sql_select_f = "SELECT CT.`主图缩略图`,CT.`热销排名`,CT.`商品信息`, \
+                CT.`所属店铺`,CT.`支付子订单数`,CT.`支付件数`, \
+                CT.`支付转化率指数`,CT.`宝贝链接`,CT.`店铺链接`,CT.`查看详情`"
+        sql_select_m = ""
+        debug_6_count = 0
+        for i in range(self.length):
+            if self.debug != 6:
+                sql_select_m += ",MAX(CASE ST.日期 WHEN " + str(self.date - \
+                datetime.timedelta(self.length - i - 1)).replace("-", "") + \
+                " THEN ST." + self.variable + " ELSE NULL END) AS `" + \
+                self.keyword + str(self.date - datetime.timedelta(self.length -\
+                                        i - 1)).replace("-", "") + "` "
+            else:
+                debug_6_count += 1
+                sql_select_m += ",MAX(CASE ST.日期 WHEN " + str(self.date - \
+                datetime.timedelta(self.length - i - 1)).replace("-", "") + \
+                " THEN ST." + self.variable + " ELSE NULL END) AS `" + \
+                                        str(debug_6_count) + "` "
+            sql_select_re = " AND CT.`热销排名`>=" + str(self.rankl) + \
+                            " AND CT.`热销排名`<=" + str(self.rankm) + \
+                " AND " + sql_select_f.split(",")[4] + "<=" + str(self.v1l) + \
+                " AND " + sql_select_f.split(",")[4] + ">=" + str(self.v1m) + \
+                " AND " + sql_select_f.split(",")[5] + "<=" + str(self.v2l) + \
+                " AND " + sql_select_f.split(",")[5] + ">=" + str(self.v2m) + \
+                " AND " + sql_select_f.split(",")[6] + "<=" + str(self.v3l) + \
+                " AND " + sql_select_f.split(",")[6] + ">=" + str(self.v3m)
+            if self.titler:
+                sql_select_re += " AND CT.`商品信息` REGEXP('" +self.titler+"')"
+            if self.storer:
+                sql_select_re += " AND CT.`所属店铺` REGEXP('" +self.storer+"')"
+        sql_select_b = "FROM " + self.table + " AS CT LEFT JOIN " +self.table+\
+            " AS ST ON CT.`宝贝链接` = ST.`宝贝链接` WHERE CT.`日期` = " + \
+            str(self.date).replace("-", "") + \
+            " AND CT.类目 = '" + self.category + "' AND CT.类型 = '" + \
+            self.classification + "' AND CT.属性 = '" + self.attributes +\
+            "' AND ST.日期 >= " + str(self.date - \
+            datetime.timedelta(self.length)).replace("-", "") + \
+            " AND ST.类目 = '" + self.category + "' AND ST.类型 = '" + \
+            self.classification + "' AND ST.属性 = '" + self.attributes + \
+            "'" + sql_select_re
+        sql_select_e = " GROUP BY CT.`热销排名`,CT.`" + self.variable + \
+            "` ORDER BY CT.`热销排名` LIMIT " + str(self.line_b) + "," + \
+            str(self.line_f-self.line_b) + ";"
+        sql_select_c = "SELECT COUNT(*) AS total FROM " + self.table + " AS CT \
+            WHERE CT.`日期` = " + str(self.date).replace("-", "") + " AND \
+            CT.类目 = '" + self.category + " 'AND CT.类型 = '" +\
+             self.classification + "' AND CT.属性 = '" + self.attributes +\
+              "'" + sql_select_re + ";"
+        sql_select = sql_select_f + sql_select_m + sql_select_b + sql_select_e
+        df = self.request_df(sql_select, sql_select_c)
+        return self.export(df=df,
+                    msg="- date: " + datetime.datetime.strftime(self.date, \
+                                                        "%m%d") + "\n" +
+                        "- category: " + self.category + "\n" +
+                        "- classification: " + self.classification + "\n" +
+                        "- attributes: " + self.attributes + "\n" +
+                        "- length: " + str(self.length) + "\n" +
+                        "- page: " + str(df["total"][0]) + "[" + \
+                        str(self.line_b) + "," + str(self.line_f) + "]\n" +
+                        "- table: " + self.table + "\n" +
+                        "- variable: " + self.variable + "\n" +
+                        "- debug:" + str(self.debug) + "\n" +
+                        "- fillna:" + self.fillna + "\n" +
+                        "- path:" + self.path + "\n" +
+                        "- keyword:" + self.keyword + "\n",
+                    sql="- SQL: \n" + sql_select + "\n" +
+                        "- SQL_total: \n" + sql_select_c,
                     filename="[DataGroup]" + self.table.split("_")[-1] + "_" +
                              self.category + "_Top500_" + self.variable + "_" +
                              datetime.datetime.strftime(self.date, "%m%d") +
