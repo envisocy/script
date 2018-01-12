@@ -22,6 +22,9 @@ class function():
         self.debug = kwargs.get("debug", 0)
         self.path = kwargs.get("path","")   # debug=9,输出csv的路径指定
         self.category = kwargs.get("category","牛仔裤")
+        self.date = kwargs.get("date", datetime.datetime.strftime( \
+        datetime.datetime.today().date() -datetime.timedelta(1), "%Y-%m-%d"))
+        self.alg = kwargs.get("alg", "Dec")
         if not self.path:
             self.path = os.path.join(os.path.expanduser("~"),'Desktop')
 
@@ -156,25 +159,22 @@ class function():
             conn.close()
 
 
-    def xiaobaods_pr(self, date="", alg="Dec"):
+    def xiaobaods_pr(self):
         '''
         查询增长表: baoersqlaftertreatment.attribute_granularity_al_rank
         必要参数：date, category
         '''
         self.sql["db"] = "baoersqlaftertreatment"
         table = "attribute_granularity_al_rank"
-        if not date:
-            date = datetime.datetime.strftime(datetime.datetime.now().date() -
-                                            datetime.timedelta(1), "%Y-%m-%d")
-        SQL = "SELECT * From " + table + " WHERE `date`='" + date + "' AND \
-        `category`='" + self.category + "' AND `alg`='" + alg + "' AND `rank`>=" + \
-        str(self.line_b) + " AND `rank`<=" + str(self.line_f) + ";"
+        SQL = "SELECT * From " + table + " WHERE `date`='" + self.date + "' AND \
+        `category`='" + self.category + "' AND `alg`='" + self.alg + "' AND \
+        `rank`>=" + str(self.line_b) + " AND `rank`<=" + str(self.line_f) + ";"
         df = self.request_df(SQL)
         return self.export(df=df,
-                    msg="- date: " + date + "\n- category: " + self.category + "\n\
-                    -alg: " + alg + "\n-rank: (" + str(self.line_b) + "," + \
+                    msg="- date: " + self.date + "\n- category: " + self.category + "\n\
+                    -alg: " + self.alg + "\n-rank: (" + str(self.line_b) + "," + \
                     str(self.line_f) + ")\n",
                     sql="- SQL: " + SQL,
                     filename="[DataGroup]" + table + "_" + self.category + "_" +
-                    alg + "_" + date + "(" + str(self.line_b) + "," +
+                    self.alg + "_" + self.date + "(" + str(self.line_b) + "," +
                     str(self.line_f) + ")",)
