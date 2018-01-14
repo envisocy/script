@@ -10,7 +10,7 @@ import sys
 import pymysql
 
 
-class score:
+class output:
     '''
     date: ep. "2017-12-01"
     department: [customer_service,]
@@ -26,10 +26,9 @@ class score:
         self.sql = configure.echo("xiaobaods_r")["config"]
         self.sql["db"] = "kpi_datebase"
         self.max_weight = kwargs.get("max_weight", 80)
-        self.date = kwargs.get("date", datetime.datetime.strftime
-                (datetime.datetime.now() - datetime.timedelta(30), "%Y-%m-01"))
-        if self.date.split("-")[-1] != "01":
-            self.date = self.date[:-2] + "01"
+        self.date = kwargs.get("date", datetime.datetime.strftime(datetime.datetime.now().date() - datetime.timedelta(30), "%Y-%m-01"))
+        #if self.date.split("-")[-1] != "01":
+        #    self.date = self.date[:-2] + "01"
         self.department = kwargs.get("department", "customer_service")
         self.table = department_table[self.department]
         self.position = kwargs.get("position", "售前")
@@ -133,8 +132,36 @@ class score:
                             df.iloc[line, df.columns.tolist().index("总考核分")] += kpi["goal"][item] * kpi["weight"]
         return df
 
-    def name(self, name=""):
-        sql = "SELECT * FROM " + self.table + " WHERE `月份`='" + self.date + \
+    def return_kpi_rule(self):
+        pass
+
+    def return_table(self, name="", wangwang="", form="", date="", position=""):
+        '''
+        标准解析
+        传入：姓名或姓名列表/ 旺旺或旺旺列表
+        传出：标准列表
+        '''
+        if date:
+            self.date = date
+        if position:
+            self.position = position
+        sql = "SELECT * FROM " + self.table + " WHERE `日期`='" + self.date + \
         "' and `职位`='" + self.position + "';"
         df = self.request_df(sql)
-        return df
+        df = self.kpi_parsing(df)
+        # 表格变换
+        if name and wangwang:
+            name = list(name)
+            wangwang = list(wangwang)
+            df = df.loc[df["姓名"].isin(name)|df["旺旺"].isin(wangwang), :]
+        elif name:
+            name = list(name)
+            df = df.loc[df["姓名"].isin(name), :]
+        elif wangwang:
+            wangwang = list(wangwang)
+            df = df.loc[df["旺旺"].isin(wangwang), :]
+        # 输出格式
+        if not form:
+            return df
+        elif form == "score":
+            pass
