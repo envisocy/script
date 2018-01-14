@@ -27,14 +27,14 @@ class output:
         self.sql["db"] = "kpi_datebase"
         self.max_weight = kwargs.get("max_weight", 80)
         self.date = kwargs.get("date", datetime.datetime.strftime(datetime.datetime.now().date() - datetime.timedelta(30), "%Y-%m-01"))
-        #if self.date.split("-")[-1] != "01":
-        #    self.date = self.date[:-2] + "01"
+        if self.date.split("-")[-1] != "01":
+            self.date = self.date[:-2] + "01"
         self.department = kwargs.get("department", "customer_service")
         self.table = department_table[self.department]
         self.position = kwargs.get("position", "售前")
         self.kpi_index = kwargs.get("kpi_index",
                     kpi_index_default[self.department + "#" + self.position])
-        # 验证Kpi
+        # 验证 Kpi
         self.validation_data()
 
     def request_df(self, sql):
@@ -161,7 +161,9 @@ class output:
             wangwang = list(wangwang)
             df = df.loc[df["旺旺"].isin(wangwang), :]
         # 输出格式
-        if not form:
+        if form == "score":
+            column_list = ["姓名"]
+            column_list.extend([i for i in filter(lambda x:"考核分" in x, df.columns.tolist())])
+            return df.loc[: , column_list]
+        else:
             return df
-        elif form == "score":
-            pass
