@@ -145,7 +145,7 @@ class output:
                             df.iloc[line, df.columns.tolist().index("总考核分")] += kpi["goal"][item] * kpi["weight"]
         return df
 
-    def kpi_rule(self):
+    def rule(self):
         df = pd.DataFrame(columns=["序号", "考核指标", "考核标准", "权重", "0", "0.6", "0.8", "1.0", "1.2", "1.5"])
         for i in self.kpi_index:
             df.loc[i, "序号"] = i
@@ -159,14 +159,20 @@ class output:
                         key_word = "1.0"
                     else:
                         key_word = str(self.kpi_index[i]['goal'][j])
-                    df.loc[i, key_word] = j
+                    j = j.replace(":", "-")
+                    if not j.split("-")[-1]:
+                        df.loc[i, key_word] = j.replace("-", "+")
+                    elif not j.split("-")[0]:
+                        df.loc[i, key_word] = j[1:] + "-"
+                    else:
+                        df.loc[i, key_word] = j
             elif self.kpi_index[i]['type'] == "value":
                 df.loc[i, "1.0"] = self.kpi_index[i]["extent"]
             elif self.kpi_index[i]['type'] == "multiplier":
                 df.loc[i, "1.0"] = "/"
         return df
 
-    def return_table(self, name="", wangwang="", form="", date="", position=""):
+    def sheet(self, name="", wangwang="", form="", date="", position=""):
         '''
         标准解析
         传入：姓名或姓名列表/ 旺旺或旺旺列表
@@ -196,9 +202,20 @@ class output:
             column_list = ["姓名"]
             column_list.extend([i for i in filter(lambda x:"考核分" in x, df.columns.tolist())])
             return df.loc[: , column_list]
-        elif not form:
+        elif not form or form == "all":
             return df
         else:
             column_list = ["姓名"]
             column_list.extend([i for i in filter(lambda x:form in x, df.columns.tolist())])
             return df.loc[: , column_list]
+
+    def analysis(self, name="", wangwang="", date="", position=""):
+        df = self.sheet(name=name, wangwang=wangwang, form="score", date=date, position=position)
+        return df.describe()
+
+    def to_csv(self, path="", filename="kpi.csv", name="", wangwang="", form="score", date="", position="", encoding="gbk"):
+        if not path:
+            import os
+            path = os.path.join(os.path.expanduser("~"), 'Desktop')
+        df = self.sheet(name=name, wangwang=wangwang, form=form, date=date, position=position)
+        df.to_csv(path+os.sep+filename, encoding=encoding)
