@@ -19,13 +19,18 @@ class output:
                     {"weight": 权重乘数,
                      "name": 考核指标,
                      "varialbe": 权重变量,
-                     "type": 计算方式: value 具体数值; range 数据范围; rank 排名;
+                     "type": 计算方式:
+                        - value 具体数值;
+                        - multiplier 乘数;
+                        - range 数据范围;
+                        - rank 排名;
+                        - times 重复次数;
                      "score": 具体分数范围}}
     '''
     def __init__(self, **kwargs):
         self.sql = configure.echo("xiaobaods_r")["config"]
         self.sql["db"] = "kpi_datebase"
-        self.max_weight = kwargs.get("max_weight", 80)
+        self.max_weight = kwargs.get("max_weight", 100)
         self.date = kwargs.get("date", datetime.datetime.strftime(datetime.datetime.now().date() - datetime.timedelta(30), "%Y-%m-01"))
         if self.date.split("-")[-1] != "01":
             self.date = self.date[:-2] + "01"
@@ -69,7 +74,7 @@ class output:
     def parse_ranking(self, expression, total, model="rank"):
         if model == "rank":
             li = [i+1 for i in range(total+1)]
-            if "D" in expression:
+            if "D" in expression or "T" in expression:
                 return []
             else:
                 a1 = expression.split(":")[0]
@@ -78,16 +83,18 @@ class output:
                 if a1 > 0:
                     a1 -= 1
                 a2 = int(a2) if a2 else len(li)
-                if a2 < 0:
+                if a2 <= 0:
                     a2 += 1
                 return li[a1:a2]
-        elif model == "range":
+        elif model == "range" or model == "times":
             a1 = expression.split(":")[0]
             a2 = expression.split(":")[-1]
             a1 = float(a1) if a1 else 0
             a2 = float(a2) if a2 else 999999
+            if model == "times":
+                a1 -= 0.01
+                a2 += 0.01
             return [a1, a2]
-
 
     def kpi_parsing(self, df):
         number = 0
@@ -114,6 +121,12 @@ class output:
                     df.iloc[line, df.columns.tolist().index(name + "得分")] = kpi["goal"]
                     df.iloc[line, df.columns.tolist().index(name + "考核分")] = kpi["goal"] * kpi["weight"]
                     df.iloc[line, df.columns.tolist().index("总考核分")] += kpi["goal"] * kpi["weight"]
+                elif kpi["type"] == "multiplier":
+                    df.iloc[line, df.columns.tolist().index(name + "实际达成")] = df.iloc[line, df.columns.tolist().index(kpi["variable"])]
+                    df.iloc[line, df.columns.tolist().index(name + "所属范围")] = df.iloc[line, df.columns.tolist().index(kpi["variable"])]
+                    df.iloc[line, df.columns.tolist().index(name + "得分")] = df.iloc[line, df.columns.tolist().index(kpi["variable"])]
+                    df.iloc[line, df.columns.tolist().index(name + "考核分")] = df.iloc[line, df.columns.tolist().index(kpi["variable"])] * kpi["weight"]
+                    df.iloc[line, df.columns.tolist().index("总考核分")] += df.iloc[line, df.columns.tolist().index(kpi["variable"])] * kpi["weight"]
                 elif kpi["type"] == "rank":
                     for item in kpi["goal"]:
                         if df.iloc[line, df.columns.tolist().index(kpi["variable"])] in self.parse_ranking(item, total, kpi["type"]):    # total比实际值小 1
@@ -122,7 +135,7 @@ class output:
                             df.iloc[line, df.columns.tolist().index(name + "得分")] = kpi["goal"][item]
                             df.iloc[line, df.columns.tolist().index(name + "考核分")] = kpi["goal"][item] * kpi["weight"]
                             df.iloc[line, df.columns.tolist().index("总考核分")] += kpi["goal"][item] * kpi["weight"]
-                elif kpi["type"] == "range":
+                elif kpi["type"] == "range" or kpi["type"] == "times":
                     for item in kpi["goal"]:
                         if df.iloc[line, df.columns.tolist().index(kpi["variable"])] >= self.parse_ranking(item, total, kpi["type"])[0] and df.iloc[line, df.columns.tolist().index(kpi["variable"])] < self.parse_ranking(item, total, kpi["type"])[1]:
                             df.iloc[line, df.columns.tolist().index(name + "实际达成")] = df.iloc[line, df.columns.tolist().index(kpi["variable"])]
@@ -165,5 +178,9 @@ class output:
             column_list = ["姓名"]
             column_list.extend([i for i in filter(lambda x:"考核分" in x, df.columns.tolist())])
             return df.loc[: , column_list]
-        else:
+        elif not form:
             return df
+        else:
+            column_list = ["姓名"]
+            column_list.extend([i for i in filter(lambda x:form in x, df.columns.tolist())])
+            return df.loc[: , column_list]

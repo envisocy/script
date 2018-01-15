@@ -2,6 +2,15 @@
 department_table = {"customer_service": "customer_service",
                     }
 
+'''
+index: "表名_table"#"职位_position"
+    - type
+        - "value": 直接传入值；
+        - "multiplier": 通过数据直接传入值；variable
+        - "rank": 通过数据排名值换算；
+        - "range": 通过数据值范围换算；
+'''
+
 kpi_index_default = {"customer_service#售前":
     {1: {"weight": 10, "name": "销量排名", "variable": "销量排名", "type": "rank", "goal":
         {"-3:": 0,"11:-4": 0.6, "6:10": 0.8, "2:5": 1, "1": 1.2, "D1": 1.5}},
@@ -16,5 +25,22 @@ kpi_index_default = {"customer_service#售前":
     6: {"weight": 10, "name": "客户满意度发送率", "variable": "发送率", "type": "range", "goal":
         {":0.60": 0, "0.60: 0.65": 0.6, "0.65: 0.70": 0.8, "0.70: 0.75": 1, "0.75: 0.90": 1.2, "0.90:": 1.5}},
     7: {"weight": 10, "name": "公司所有店铺目标达成率", "variable": "公司店铺目标达成率", "type": "value", "goal":
-        1, "reach": "0.9", "extent": "0.9"},},
+        1, "reach": "0.92", "extent": "0.9+"},
+    8: {"weight": 20, "name": "工作能力考核", "variable": "工作能力考核", "type": "multiplier"},},
+                    "customer_service#售后":
+    {1: {"weight": 15, "name": "接待量排名", "variable": "接待人数名次", "type": "rank", "goal":
+        {"-3:": 0,"11:-4": 0.6, "6:10": 0.8, "2:5": 1, "1": 1.2, "D1": 1.5}},
+    2: {"weight": 15, "name": "接待退货率", "variable": "退款率", "type": "range", "goal":
+        {"0.27:": 0, "0.21: 0.27": 0.6, "0.18: 0.21": 0.8, "0.16: 0.18": 1, "0.12: 0.16": 1.2, ":0.12": 1.5}},
+    3: {"weight": 10, "name": "客户满意度发送率", "variable": "发送率", "type": "range", "goal":
+        {":0.60": 0, "0.60: 0.65": 0.6, "0.65: 0.70": 0.8, "0.70: 0.75": 1, "0.75: 0.90": 1.2, "0.90:": 1.5}},
+    4: {"weight": 10, "name": "维权投诉、低质评价", "variable": "维权投诉数", "type": "times", "goal":
+        {"5:": 0, "3:4": 0.6, "1:2": 0.8, "0": 1, }},
+    5: {"weight": 10, "name": "旺旺接待答问比", "variable": "答问比", "type": "range", "goal":
+        {":1.00": 0, "1.00: 1.20": 0.6, "1.20: 1.30": 0.8, "1.30: 2.00": 1, "2.00: 3.00": 1.2, "3.00:": 1.5}},
+    6: {"weight": 10, "name": "平均响应时间", "variable": "响应时间", "type": "range", "goal":
+        {"40:": 0, "35: 40": 0.6, "28: 35": 0.8, "25: 28": 1, "18: 25": 1.2, ":18": 1.5}},
+    7: {"weight": 10, "name": "公司所有店铺目标达成率", "variable": "公司店铺目标达成率", "type": "value", "goal":
+        1, "reach": "0.92", "extent": "0.9+"},
+    8: {"weight": 20, "name": "工作能力考核", "variable": "工作能力考核", "type": "multiplier"},},
 }
