@@ -145,8 +145,26 @@ class output:
                             df.iloc[line, df.columns.tolist().index("总考核分")] += kpi["goal"][item] * kpi["weight"]
         return df
 
-    def return_kpi_rule(self):
-        pass
+    def kpi_rule(self):
+        df = pd.DataFrame(columns=["序号", "考核指标", "考核标准", "权重", "0", "0.6", "0.8", "1.0", "1.2", "1.5"])
+        for i in self.kpi_index:
+            df.loc[i, "序号"] = i
+            df.loc[i, "考核指标"] = self.kpi_index[i]['name']
+            df.loc[i, "考核标准"] = self.kpi_index[i]['variable']
+            df.loc[i, "权重"] = self.kpi_index[i]['weight']
+            df.fillna("", inplace=True)
+            if self.kpi_index[i]['type'] in ["range", "rank", "times"]:
+                for j in self.kpi_index[i]['goal']:
+                    if self.kpi_index[i]['goal'][j] == 1:
+                        key_word = "1.0"
+                    else:
+                        key_word = str(self.kpi_index[i]['goal'][j])
+                    df.loc[i, key_word] = j
+            elif self.kpi_index[i]['type'] == "value":
+                df.loc[i, "1.0"] = self.kpi_index[i]["extent"]
+            elif self.kpi_index[i]['type'] == "multiplier":
+                df.loc[i, "1.0"] = "/"
+        return df
 
     def return_table(self, name="", wangwang="", form="", date="", position=""):
         '''
