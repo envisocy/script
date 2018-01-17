@@ -536,9 +536,97 @@ class function():
         ERP_Sales_Together WHERE `店铺`='" + self.variable + "' GROUP BY `周`;"
         df = self.request_df(SQL)
         df.sort_values("周", inplace=True)
-        df.set_index("周", inplace=True)
+        # df.set_index("周", inplace=True)
         return self.export(df=df,
                     msg="- variable(store): " + self.variable + "\n",
                     sql="- SQL: " + SQL,
                     filename="[DataGroup]Shop_sales_rankings(" + self.variable +
                     ")",)
+
+    def xiaobaods_w(self):
+        '''
+        关键词 核心表
+        必要参数：category, variable, length, line_b, line_f,
+        可选参数: table, fillna, debug, path,
+        '''
+        if self.table not in ["bc_attribute_granularity_sales",
+                              "bc_attribute_granularity_visitor"]:
+            self.table = "bc_attribute_granularity_sales"
+        if self.table == "bc_attribute_granularity_sales":
+            sql_select_f = "SELECT CT.`主图缩略图`,CT.`热销排名`,CT.`商品信息`, \
+            CT.`所属店铺`,CT.`支付子订单数`,CT.`交易增长幅度`, CT.`支付转化率指数`,\
+            CT.`宝贝链接`,CT.`店铺链接`,CT.`查看详情`,CT.`同款货源`"
+            if self.variable not in ["热销排名", "支付子订单数", "交易增长幅度", \
+                                     "支付转化率指数"]:
+                self.variable = "热销排名"
+        elif self.table == "bc_attribute_granularity_visitor":
+            sql_select_f = "SELECT CT.`主图缩略图`,CT.`热销排名`,CT.`商品信息`, \
+            CT.`所属店铺`,CT.`流量指数`,CT.`搜索人气`,CT.`支付子订单数`, \
+            CT.`宝贝链接`, CT.`店铺链接`,CT.`查看详情`,CT.`同款货源`"
+            if self.variable not in ["热销排名", "流量指数", "搜索人气",
+                                     "支付子订单数"]:
+                self.variable = "热销排名"
+        self.request_date()
+        # SQL
+        sql_select_m = ""
+        debug_6_count = 0
+        for i in range(self.length):
+            if self.debug != 6:
+                sql_select_m += ",MAX(CASE ST.日期 WHEN " + str(self.date - \
+                datetime.timedelta(self.length - i - 1)).replace("-", "") + \
+                " THEN ST." + self.variable + " ELSE NULL END) AS `" + \
+                self.keyword + str(self.date - datetime.timedelta(self.length -\
+                                        i - 1)).replace("-", "") + "` "
+            else:
+                debug_6_count += 1
+                sql_select_m += ",MAX(CASE ST.日期 WHEN " + str(self.date - \
+                datetime.timedelta(self.length - i - 1)).replace("-", "") + \
+                " THEN ST." + self.variable + " ELSE NULL END) AS `" + \
+                                        str(debug_6_count) + "` "
+            sql_select_re = " AND CT.`热销排名`>=" + str(self.rankl) + \
+                            " AND CT.`热销排名`<=" + str(self.rankm) + \
+                " AND " + sql_select_f.split(",")[4] + "<=" + str(self.v1l) + \
+                " AND " + sql_select_f.split(",")[4] + ">=" + str(self.v1m) + \
+                " AND " + sql_select_f.split(",")[5] + "<=" + str(self.v2l) + \
+                " AND " + sql_select_f.split(",")[5] + ">=" + str(self.v2m) + \
+                " AND " + sql_select_f.split(",")[6] + "<=" + str(self.v3l) + \
+                " AND " + sql_select_f.split(",")[6] + ">=" + str(self.v3m)
+            if self.titler:
+                sql_select_re += " AND CT.`商品信息` REGEXP('" +self.titler+"')"
+            if self.storer:
+                sql_select_re += " AND CT.`所属店铺` REGEXP('" +self.storer+"')"
+        sql_select_b = "FROM " + self.table + " AS CT LEFT JOIN " +self.table+\
+            " AS ST ON CT.`宝贝链接` = ST.`宝贝链接` WHERE CT.`日期` = " + \
+            str(self.date).replace("-", "") + \
+            " AND CT.类目 = '" + self.category + \
+            "' AND ST.日期 >= " + str(self.date - \
+            datetime.timedelta(self.length)).replace("-", "") + \
+            " AND ST.类目 = '" + self.category + "'" + sql_select_re
+        sql_select_e = " GROUP BY CT.`热销排名`,CT.`" + self.variable + \
+            "` ORDER BY CT.`热销排名` LIMIT " + str(self.line_b) + "," + \
+            str(self.line_f-self.line_b) + ";"
+        sql_select_c = "SELECT COUNT(*) AS total FROM " + self.table + " AS CT \
+            WHERE CT.`日期` = " + str(self.date).replace("-", "") + " AND \
+            CT.类目 = '" + self.category + "'" + sql_select_re + ";"
+        sql_select = sql_select_f + sql_select_m + sql_select_b + sql_select_e
+        df = self.request_df(sql_select, sql_select_c)
+        return self.export(df=df,
+                    msg="- date: " + datetime.datetime.strftime(self.date, \
+                                                        "%m%d") + "\n" +
+                        "- category: " + self.category + "\n" +
+                        "- length: " + str(self.length) + "\n" +
+                        "- page: " + str(df["total"][0]) + "[" + \
+                        str(self.line_b) + "," + str(self.line_f) + "]\n" +
+                        "- table: " + self.table + "\n" +
+                        "- variable: " + self.variable + "\n" +
+                        "- debug:" + str(self.debug) + "\n" +
+                        "- fillna:" + self.fillna + "\n" +
+                        "- path:" + self.path + "\n" +
+                        "- keyword:" + self.keyword + "\n",
+                    sql="- SQL: \n" + sql_select + "\n" +
+                        "- SQL_total: \n" + sql_select_c,
+                    filename="[DataGroup]" + self.table.split("_")[-1] + "_" +
+                             self.category + "_Top500_" + self.variable + "_" +
+                             datetime.datetime.strftime(self.date, "%m%d") +
+                             str(self.length) + "(" + str(self.line_b) + "," +
+                              str(self.line_f) + ")" )
