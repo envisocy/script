@@ -31,7 +31,9 @@ class output:
         self.sql = configure.echo("xiaobaods_r")["config"]
         self.sql["db"] = "kpi_datebase"
         self.max_weight = kwargs.get("max_weight", 100)
-        self.date = kwargs.get("date", datetime.datetime.strftime(datetime.datetime.now().date() - datetime.timedelta(30), "%Y-%m-01"))
+        self.date = kwargs.get("date",
+                datetime.datetime.strftime(datetime.datetime.now().date() -
+                                           datetime.timedelta(30), "%Y-%m-01"))
         if self.date.split("-")[-1] != "01":
             self.date = self.date[:-2] + "01"
         self.department = kwargs.get("department", "customer_service")
@@ -146,7 +148,8 @@ class output:
         return df
 
     def rule(self):
-        df = pd.DataFrame(columns=["序号", "考核指标", "考核标准", "权重", "0", "0.6", "0.8", "1.0", "1.2", "1.5"])
+        df = pd.DataFrame(columns=["序号", "考核指标", "考核标准",
+                                "权重", "0", "0.6", "0.8", "1.0", "1.2", "1.5"])
         for i in self.kpi_index:
             df.loc[i, "序号"] = i
             df.loc[i, "考核指标"] = self.kpi_index[i]['name']
@@ -200,22 +203,28 @@ class output:
         # 输出格式
         if form == "score":
             column_list = ["姓名"]
-            column_list.extend([i for i in filter(lambda x:"考核分" in x, df.columns.tolist())])
+            column_list.extend([i for i in filter(lambda x:"考核分" in x,
+                                                  df.columns.tolist())])
             return df.loc[: , column_list]
         elif not form or form == "all":
             return df
         else:
             column_list = ["姓名"]
-            column_list.extend([i for i in filter(lambda x:form in x, df.columns.tolist())])
+            column_list.extend([i for i in filter(lambda x:form in x,
+                                                  df.columns.tolist())])
             return df.loc[: , column_list]
 
     def analysis(self, name="", wangwang="", date="", position=""):
-        df = self.sheet(name=name, wangwang=wangwang, form="score", date=date, position=position)
+        df = self.sheet(name=name, wangwang=wangwang, form="score",
+                        date=date, position=position)
         return df.describe()
 
-    def to_csv(self, path="", filename="kpi.csv", name="", wangwang="", form="score", date="", position="", encoding="gbk"):
+    def to_csv(self, path="", filename="kpi.csv", name="", wangwang="",
+               form="score", date="", position="", encoding="gbk"):
+        import os
         if not path:
-            import os
             path = os.path.join(os.path.expanduser("~"), 'Desktop')
-        df = self.sheet(name=name, wangwang=wangwang, form=form, date=date, position=position)
-        df.to_csv(path+os.sep+filename, encoding=encoding)
+        df = self.sheet(name=name, wangwang=wangwang, form=form, date=date,
+                        position=position)
+        pd.set_option('precision', 2)
+        df.to_csv(path + os.sep + filename, encoding=encoding)

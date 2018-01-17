@@ -529,11 +529,14 @@ class function():
         '''
         self.sql["db"] = "baoersqlerp"
         self.table = "ERP_Sales_Together"
-        SQL = "SELECT `交易时间`, `销售额`, `件数` From ERP_Sales_Together WHERE \
-        `店铺`='" + self.variable + "' ORDER BY `交易时间` DESC LIMIT 90;"
+        # SQL = "SELECT `交易时间`, `销售额`, `件数` From ERP_Sales_Together WHERE \
+        # `店铺`='" + self.variable + "' ORDER BY `交易时间` DESC LIMIT 90;"
+        SQL = "SELECT DATE_FORMAT(`交易时间`, '%y-%u') as `周`, \
+        sum(`销售额`) as `销售额`,sum(`件数`) as `件数` FROM \
+        ERP_Sales_Together WHERE `店铺`='" + self.variable + "' GROUP BY `周`;"
         df = self.request_df(SQL)
-        df.sort_values("交易时间", inplace=True)
-        df.set_index("交易时间", inplace=True)
+        df.sort_values("周", inplace=True)
+        df.set_index("周", inplace=True)
         return self.export(df=df,
                     msg="- variable(store): " + self.variable + "\n",
                     sql="- SQL: " + SQL,
