@@ -531,7 +531,7 @@ class function():
         self.table = "ERP_Sales_Together"
         # SQL = "SELECT `交易时间`, `销售额`, `件数` From ERP_Sales_Together WHERE \
         # `店铺`='" + self.variable + "' ORDER BY `交易时间` DESC LIMIT 90;"
-        SQL = "SELECT DATE_FORMAT(`交易时间`, '%y-%u') as `周`, \
+        SQL = "SELECT DATE_FORMAT(`交易时间`, '%y年 第%u周') as `周`, \
         sum(`销售额`) as `销售额`,sum(`件数`) as `件数` FROM \
         ERP_Sales_Together WHERE `店铺`='" + self.variable + "' GROUP BY `周`;"
         df = self.request_df(SQL)
