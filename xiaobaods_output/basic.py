@@ -40,6 +40,7 @@ class function():
         self.fillna = kwargs.get("fillna", "")  # 填充空值
         self.debug = kwargs.get("debug", 0)     # 选择输出项目
         self.path = kwargs.get("path","")   # debug=9,输出csv的路径指定
+        self.choice = kwargs.get("choice","热搜核心词")   # xiaobaods_w 中的表单选择
         if not self.path:
             self.path = os.path.join(os.path.expanduser("~"),'Desktop')
         self.keyword = kwargs.get("keyword","日期：")
@@ -536,7 +537,7 @@ class function():
         ERP_Sales_Together WHERE `店铺`='" + self.variable + "' GROUP BY `周`;"
         df = self.request_df(SQL)
         df.sort_values("周", inplace=True)
-        # df.set_index("周", inplace=True)
+        df.set_index("周", inplace=True)
         return self.export(df=df,
                     msg="- variable(store): " + self.variable + "\n",
                     sql="- SQL: " + SQL,
