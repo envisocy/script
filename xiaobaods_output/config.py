@@ -9,16 +9,23 @@ cfg_goal = {"打底裤": {"厚薄": ['薄款', '常规', '加绒', '加厚'], "�
 
 # for xiaobaods_w
 cfg_clist = {
-    "热搜修饰词": {"table": "bc_searchwords_hotwords", "variable": ("搜索人气", "相关搜索词数", "点击率", "点击人气", "支付转化率", "直通车参考价")},
-    "热搜品牌词": {"table": "bc_searchwords_hotwords", "variable": ("搜索人气", "相关搜索词数", "点击率", "点击人气", "支付转化率", "直通车参考价")},
-    "热搜搜索词": {"table": "bc_searchwords_hotwords", "variable": ("搜索人气", "商城点击占比", "点击率", "点击人气", "支付转化率", "直通车参考价")},
-    "热搜核心词": {"table": "bc_searchwords_hotwords", "variable": ("搜索人气", "相关搜索词数", "点击率", "点击人气", "支付转化率", "直通车参考价")},
-    "热搜长尾词": {"table": "bc_searchwords_hotwords", "variable": ("搜索人气", "商城点击占比", "点击率", "点击人气", "支付转化率", "直通车参考价")},
+    "热搜修饰词": {"table": "bc_searchwords_hotwords",
+              "variable": ("搜索人气", "相关搜索词数", "点击率", "点击人气", "支付转化率", "直通车参考价")},
+    "热搜品牌词": {"table": "bc_searchwords_hotwords",
+              "variable": ("搜索人气", "相关搜索词数", "点击率", "点击人气", "支付转化率", "直通车参考价")},
+    "热搜搜索词": {"table": "bc_searchwords_hotwords",
+              "variable": ("搜索人气", "商城点击占比", "点击率", "点击人气", "支付转化率", "直通车参考价")},
+    "热搜核心词": {"table": "bc_searchwords_hotwords",
+              "variable": ("搜索人气", "相关搜索词数", "点击率", "点击人气", "支付转化率", "直通车参考价")},
+    "热搜长尾词": {"table": "bc_searchwords_hotwords",
+              "variable": ("搜索人气", "商城点击占比", "点击率", "点击人气", "支付转化率", "直通车参考价")},
     "飙升修饰词": {"table": "bc_searchwords_risewords",
               "variable": ("相关搜索词数", "搜索人气", "词均搜索增长幅度", "点击人气", "支付转化率", "直通车参考价")},
     "飙升品牌词": {"table": "bc_searchwords_risewords",
               "variable": ("相关搜索词数", "搜索人气", "词均搜索增长幅度", "点击人气", "支付转化率", "直通车参考价")},
-    "飙升搜索词": {"table": "bc_searchwords_risewords", "variable": ("搜索增长幅度", "搜索人气", "点击率", "点击人气", "支付转化率", "直通车参考价")},
+    "飙升搜索词": {"table": "bc_searchwords_risewords",
+              "variable": ("搜索增长幅度", "搜索人气", "点击率", "点击人气", "支付转化率", "直通车参考价")},
     "飙升核心词": {"table": "bc_searchwords_risewords",
               "variable": ("相关搜索词数", "搜索人气", "词均搜索增长幅度", "点击人气", "支付转化率", "直通车参考价")},
-    "飙升长尾词": {"table": "bc_searchwords_risewords", "variable": ("搜索增长幅度", "搜索人气", "点击率", "点击人气", "支付转化率", "直通车参考价")}, }
+    "飙升长尾词": {"table": "bc_searchwords_risewords",
+              "variable": ("搜索增长幅度", "搜索人气", "点击率", "点击人气", "支付转化率", "直通车参考价")}, }

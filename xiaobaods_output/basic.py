@@ -58,6 +58,8 @@ class function():
         self.v3m = kwargs.get("v3m", -9999999999)
         self.v4l = kwargs.get("v4l", 9999999999)
         self.v4m = kwargs.get("v4m", -9999999999)
+        self.v5l = kwargs.get("v5l", 9999999999)
+        self.v5m = kwargs.get("v5m", -9999999999)
         # 算法部分
         self.alg = kwargs.get("alg","")
         self.alpha = kwargs.get("alpha", 1.2)
@@ -74,10 +76,12 @@ class function():
                 df = self.xiaobaods_a()
             else:
                 df = self.xiaobaods_a_alg()
-        elif fun=="c":
-            df = self.xiaobaods_c()
         elif fun=="al":
             df = self.xiaobaods_al()
+        elif fun=="c":
+            df = self.xiaobaods_c()
+        elif fun=="w":
+            df = self.xiaobaods_w()
         elif fun == "ps":
             df = self.xiaobaods_ps()
         elif fun == "pi":
@@ -109,6 +113,11 @@ class function():
                 cursor.execute("SELECT min(`日期`),max(`日期`) from "+ self.table +
                     " where `类目`='" + self.category + "' and `类型`='" +
                     self.classification + "' and `属性`='" + self.attributes + "';")
+
+            elif fun=="w":
+                cursor.execute("SELECT min(`日期`),max(`日期`) from "+ self.table +
+                    " where `类目`='" + self.category + "' and `字段`='" + self.choice + "';")
+
             date_limit = cursor.fetchall()
             date_floor = date_limit[0][0]
             date_ceiling = date_limit[0][1]
@@ -547,28 +556,21 @@ class function():
     def xiaobaods_w(self):
         '''
         关键词 核心表
-        必要参数：category, variable, length, line_b, line_f,
+        必要参数：(choice, table, variable), category, variable, length, line_b, line_f,
+        搜索词：rankl/m, v1-5l/m, titler
         可选参数: table, fillna, debug, path,
         '''
-        if self.table not in ["bc_attribute_granularity_sales",
-                              "bc_attribute_granularity_visitor"]:
-            self.table = "bc_attribute_granularity_sales"
-        if self.table == "bc_attribute_granularity_sales":
-            sql_select_f = "SELECT CT.`主图缩略图`,CT.`热销排名`,CT.`商品信息`, \
-            CT.`所属店铺`,CT.`支付子订单数`,CT.`交易增长幅度`, CT.`支付转化率指数`,\
-            CT.`宝贝链接`,CT.`店铺链接`,CT.`查看详情`,CT.`同款货源`"
-            if self.variable not in ["热销排名", "支付子订单数", "交易增长幅度", \
-                                     "支付转化率指数"]:
-                self.variable = "热销排名"
-        elif self.table == "bc_attribute_granularity_visitor":
-            sql_select_f = "SELECT CT.`主图缩略图`,CT.`热销排名`,CT.`商品信息`, \
-            CT.`所属店铺`,CT.`流量指数`,CT.`搜索人气`,CT.`支付子订单数`, \
-            CT.`宝贝链接`, CT.`店铺链接`,CT.`查看详情`,CT.`同款货源`"
-            if self.variable not in ["热销排名", "流量指数", "搜索人气",
-                                     "支付子订单数"]:
-                self.variable = "热销排名"
+        if self.choice in cfg_clist:
+            self.table = cfg_clist[self.choice]["table"]
+            if self.variable not in cfg_clist[self.choice]["variable"]:
+                self.variable = "排名"
+        else:
+            return None
         self.request_date()
         # SQL
+        sql_select_f = "SELECT CT.`排名`,CT.`搜索词`"
+        for i in range(len(cfg_clist[self.choice]["variable"])):
+            sql_select_f += ",CT.`" + cfg_clist[self.choice]["variable"][i] + "`"
         sql_select_m = ""
         debug_6_count = 0
         for i in range(self.length):
@@ -584,50 +586,56 @@ class function():
                 datetime.timedelta(self.length - i - 1)).replace("-", "") + \
                 " THEN ST." + self.variable + " ELSE NULL END) AS `" + \
                                         str(debug_6_count) + "` "
-            sql_select_re = " AND CT.`热销排名`>=" + str(self.rankl) + \
-                            " AND CT.`热销排名`<=" + str(self.rankm) + \
-                " AND " + sql_select_f.split(",")[4] + "<=" + str(self.v1l) + \
-                " AND " + sql_select_f.split(",")[4] + ">=" + str(self.v1m) + \
-                " AND " + sql_select_f.split(",")[5] + "<=" + str(self.v2l) + \
-                " AND " + sql_select_f.split(",")[5] + ">=" + str(self.v2m) + \
-                " AND " + sql_select_f.split(",")[6] + "<=" + str(self.v3l) + \
-                " AND " + sql_select_f.split(",")[6] + ">=" + str(self.v3m)
+            sql_select_re = " AND CT.`排名`>=" + str(self.rankl) + \
+                            " AND CT.`排名`<=" + str(self.rankm) + \
+                " AND CT." + cfg_clist[self.choice]["variable"][0] + "<=" + str(self.v1l) + \
+                " AND CT." + cfg_clist[self.choice]["variable"][0] + ">=" + str(self.v1m) + \
+                " AND CT." + cfg_clist[self.choice]["variable"][1] + "<=" + str(self.v2l) + \
+                " AND CT." + cfg_clist[self.choice]["variable"][1] + ">=" + str(self.v2m) + \
+                " AND CT." + cfg_clist[self.choice]["variable"][2] + "<=" + str(self.v3l) + \
+                " AND CT." + cfg_clist[self.choice]["variable"][2] + ">=" + str(self.v3m) + \
+                " AND CT." + cfg_clist[self.choice]["variable"][3] + "<=" + str(self.v4l) + \
+                " AND CT." + cfg_clist[self.choice]["variable"][3] + ">=" + str(self.v4m) + \
+                " AND CT." + cfg_clist[self.choice]["variable"][4] + "<=" + str(self.v5l) + \
+                " AND CT." + cfg_clist[self.choice]["variable"][4] + ">=" + str(self.v5m)
             if self.titler:
-                sql_select_re += " AND CT.`商品信息` REGEXP('" +self.titler+"')"
-            if self.storer:
-                sql_select_re += " AND CT.`所属店铺` REGEXP('" +self.storer+"')"
-        sql_select_b = "FROM " + self.table + " AS CT LEFT JOIN " +self.table+\
-            " AS ST ON CT.`宝贝链接` = ST.`宝贝链接` WHERE CT.`日期` = " + \
+                sql_select_re += " AND CT.`搜索词` REGEXP('" +self.titler+"')"
+        sql_select_b = "FROM " + self.table + " AS CT LEFT JOIN " + self.table +\
+            " AS ST ON CT.`搜索词` = ST.`搜索词` WHERE CT.`日期` = " + \
             str(self.date).replace("-", "") + \
-            " AND CT.类目 = '" + self.category + \
+            " AND CT.类目 = '" + self.category + "' AND CT.字段 = '" + self.choice +\
             "' AND ST.日期 >= " + str(self.date - \
             datetime.timedelta(self.length)).replace("-", "") + \
-            " AND ST.类目 = '" + self.category + "'" + sql_select_re
-        sql_select_e = " GROUP BY CT.`热销排名`,CT.`" + self.variable + \
-            "` ORDER BY CT.`热销排名` LIMIT " + str(self.line_b) + "," + \
+            " AND ST.类目 = '" + self.category + "' AND ST.字段 = '" + \
+            self.choice + "'" + sql_select_re
+        sql_select_e = " GROUP BY CT.`排名`,CT.`" + self.variable + \
+            "` ORDER BY CT.`排名` LIMIT " + str(self.line_b) + "," + \
             str(self.line_f-self.line_b) + ";"
         sql_select_c = "SELECT COUNT(*) AS total FROM " + self.table + " AS CT \
             WHERE CT.`日期` = " + str(self.date).replace("-", "") + " AND \
-            CT.类目 = '" + self.category + "'" + sql_select_re + ";"
+            CT.类目 = '" + self.category + "' AND CT.字段 = '" + self.choice + \
+            "'" + sql_select_re + ";"
         sql_select = sql_select_f + sql_select_m + sql_select_b + sql_select_e
         df = self.request_df(sql_select, sql_select_c)
         return self.export(df=df,
                     msg="- date: " + datetime.datetime.strftime(self.date, \
                                                         "%m%d") + "\n" +
+                        "- choice: " + self.choice + "\n" +
                         "- category: " + self.category + "\n" +
                         "- length: " + str(self.length) + "\n" +
                         "- page: " + str(df["total"][0]) + "[" + \
                         str(self.line_b) + "," + str(self.line_f) + "]\n" +
                         "- table: " + self.table + "\n" +
+                        "- variable_list: " + str(cfg_clist[self.choice]["variable"]) + "\n" +
                         "- variable: " + self.variable + "\n" +
                         "- debug:" + str(self.debug) + "\n" +
                         "- fillna:" + self.fillna + "\n" +
-                        "- path:" + self.path + "\n" +
-                        "- keyword:" + self.keyword + "\n",
+                        "- path:" + self.path + "\n" ,
                     sql="- SQL: \n" + sql_select + "\n" +
                         "- SQL_total: \n" + sql_select_c,
                     filename="[DataGroup]" + self.table.split("_")[-1] + "_" +
-                             self.category + "_Top500_" + self.variable + "_" +
+                             self.category + "_" + self.choice + "_" +
+                             self.variable + "_" +
                              datetime.datetime.strftime(self.date, "%m%d") +
                              str(self.length) + "(" + str(self.line_b) + "," +
                               str(self.line_f) + ")" )
