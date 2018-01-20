@@ -27,6 +27,7 @@ class output:
                         - times 重复次数;
                      "score": 具体分数范围}}
     '''
+
     def __init__(self, **kwargs):
         self.sql = configure.echo("xiaobaods_r")["config"]
         self.sql["db"] = "kpi_datebase"
@@ -88,7 +89,7 @@ class output:
                 if a2 <= 0:
                     a2 += 1
                 return li[a1:a2]
-        elif model == "range" or model == "times":
+        elif model in ["range", "times", "percentage"]:
             a1 = expression.split(":")[0]
             a2 = expression.split(":")[-1]
             a1 = float(a1) if a1 else 0
@@ -96,6 +97,9 @@ class output:
             if model == "times":
                 a1 -= 0.01
                 a2 += 0.01
+            if model == "percentage":
+                a1 /= 100
+                a2 /= 100
             return [a1, a2]
 
     def kpi_parsing(self, df):
@@ -137,11 +141,25 @@ class output:
                             df.iloc[line, df.columns.tolist().index(name + "得分")] = kpi["goal"][item]
                             df.iloc[line, df.columns.tolist().index(name + "考核分")] = kpi["goal"][item] * kpi["weight"]
                             df.iloc[line, df.columns.tolist().index("总考核分")] += kpi["goal"][item] * kpi["weight"]
-                elif kpi["type"] == "range" or kpi["type"] == "times":
+                elif kpi["type"] in ["range","times"]:
                     for item in kpi["goal"]:
                         if df.iloc[line, df.columns.tolist().index(kpi["variable"])] >= self.parse_ranking(item, total, kpi["type"])[0] and df.iloc[line, df.columns.tolist().index(kpi["variable"])] < self.parse_ranking(item, total, kpi["type"])[1]:
                             df.iloc[line, df.columns.tolist().index(name + "实际达成")] = df.iloc[line, df.columns.tolist().index(kpi["variable"])]
                             df.iloc[line, df.columns.tolist().index(name + "所属范围")] = item
+                            df.iloc[line, df.columns.tolist().index(name + "得分")] = kpi["goal"][item]
+                            df.iloc[line, df.columns.tolist().index(name + "考核分")] = kpi["goal"][item] * kpi["weight"]
+                            df.iloc[line, df.columns.tolist().index("总考核分")] += kpi["goal"][item] * kpi["weight"]
+                elif kpi["type"] == "percentage":
+                    for item in kpi["goal"]:
+                        if df.iloc[line, df.columns.tolist().index(kpi["variable"])] >= self.parse_ranking(item, total, kpi["type"])[0] and df.iloc[line, df.columns.tolist().index(kpi["variable"])] < self.parse_ranking(item, total, kpi["type"])[1]:
+                            df.iloc[line, df.columns.tolist().index(name + "实际达成")] = str(format(float(df.iloc[line, df.columns.tolist().index(kpi["variable"])])*100,".2f"))+"%"
+                            if not item.split(":")[0]:
+                                itemp = item + "%"
+                            elif not item.split(":")[-1]:
+                                itemp = item[:-2] + "%:"
+                            else:
+                                itemp = item.split(":")[0] + "%:" + item.split(":")[-1] + "%"
+                            df.iloc[line, df.columns.tolist().index(name + "所属范围")] = itemp
                             df.iloc[line, df.columns.tolist().index(name + "得分")] = kpi["goal"][item]
                             df.iloc[line, df.columns.tolist().index(name + "考核分")] = kpi["goal"][item] * kpi["weight"]
                             df.iloc[line, df.columns.tolist().index("总考核分")] += kpi["goal"][item] * kpi["weight"]
@@ -156,19 +174,24 @@ class output:
             df.loc[i, "考核标准"] = self.kpi_index[i]['variable']
             df.loc[i, "权重"] = self.kpi_index[i]['weight']
             df.fillna("", inplace=True)
-            if self.kpi_index[i]['type'] in ["range", "rank", "times"]:
+            if self.kpi_index[i]['type'] in ["range", "rank", "times", "percentage"]:
                 for j in self.kpi_index[i]['goal']:
                     if self.kpi_index[i]['goal'][j] == 1:
                         key_word = "1.0"
                     else:
                         key_word = str(self.kpi_index[i]['goal'][j])
-                    j = j.replace(":", "-")
-                    if not j.split("-")[-1]:
-                        df.loc[i, key_word] = j.replace("-", "+")
-                    elif not j.split("-")[0]:
+                    j = j.replace(":", "~")
+                    if not j.split("~")[-1]:
+                        df.loc[i, key_word] = j.replace("~", "+")
+                    elif not j.split("~")[0]:
                         df.loc[i, key_word] = j[1:] + "-"
                     else:
                         df.loc[i, key_word] = j
+                    if self.kpi_index[i]['type'] == "percentage":
+                        if df.loc[i, key_word][-1] in ["+", "-"]:
+                            df.loc[i, key_word] = df.loc[i, key_word][:-2] + "%" + df.loc[i, key_word][-1]
+                        else:
+                            df.loc[i, key_word] = df.loc[i, key_word].split("~")[0] + "%~" + df.loc[i, key_word].split("~")[-1] + "%"
             elif self.kpi_index[i]['type'] == "value":
                 df.loc[i, "1.0"] = self.kpi_index[i]["extent"]
             elif self.kpi_index[i]['type'] == "multiplier":
