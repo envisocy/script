@@ -48,3 +48,58 @@ def http(host='', port=2018):
 
         connection.sendall(response)
         connection.close()
+
+def test_parsed_url():
+    """
+    单元测试
+    """
+    host = "g.cn"
+    path = "/"
+    test_items = [
+        ('http://g.cn', ('http', host, 80, path)),
+        ('http://g.cn/', ('http', host, 80, path)),
+        ('http://g.cn:90', ('http', host, 90, path)),
+        ('http://g.cn:90/', ('http', host, 90, path)),
+        ('https://g.cn', ('https', host, 443, path)),
+        ('https://g.cn:233/', ('https', host, 233, path)),
+        ('https://geogle.com.cn:60/index.html', ('https', 'geogle.com.cn', 60, '/index.html'))
+    ]
+    for t in test_items:
+        url, expected = t
+        u = parsed_url(url)
+        e = "parsed_url ERROR, ({}) ({}) ({})".format(url, u, expected)
+        assert u == expected, e
+
+def parsed_url(url):
+    """
+    解析 url 并返回 (protocol, host, port, path)
+    """
+    protocol = "http"
+    if url[:7] == "http://":
+        u = url.split("://")[1]
+    elif url[:8] == "https://":
+        protocol = "https"
+        u = url.split("://")[1]
+    else:
+        u = url
+
+    i = u.find("/")
+    if i == -1:
+        host = u
+        path = "/"
+    else:
+        host = u[:i]
+        path = u[i:]
+
+    port_default = {
+        "http": 80,
+        "https": 443,
+    }
+
+    port = port_default[protocol]
+    if ':' in host:
+        h = host.split(':')
+        host = h[0]
+        port = int(h[1])
+
+    return protocol, host, port, path
