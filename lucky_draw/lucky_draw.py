@@ -8,7 +8,7 @@ import csv
 import random
 import os
 
-class luck_draw:
+class lucky_draw:
     def __init__(self):
         # 奖项：[计划总人数, 已产生的人数, 每次输出人数, ]
         self.price_limit = {1: [10, 0, 2], 2: [20, 0, 5], 3: [30, 0, 10]}
@@ -89,5 +89,5 @@ class luck_draw:
         return price_list
 
 if __name__ == '__main__':
-    ld = luck_draw()
+    ld = lucky_draw()
     ld.draw(1)
