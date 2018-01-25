@@ -6,6 +6,7 @@ import random
 import os
 import sys
 
+
 class lucky_draw:
     def __init__(self):
         # 奖项：[计划总人数, 已产生的人数, 每次输出人数, ]
@@ -50,6 +51,13 @@ class lucky_draw:
 
     def draw(self, price:int=0, num:int=0):
         price = int(price)
+        if price == 0:
+            if self.price_limit[3][1] < self.price_limit[3][0]:
+                price = 3
+            elif self.price_limit[2][1] < self.price_limit[2][0]:
+                price = 2
+            elif self.price_limit[1][1] < self.price_limit[1][0]:
+                price = 1
         if price not in [1, 2, 3]:
             print(" ! 无效的抽奖操作，未指定奖项！")
             return None
@@ -71,7 +79,7 @@ class lucky_draw:
             for emp in self.emplist:
                 f.write(",".join(emp)+"\n")
         self.price_limit[price][1] += num
-        return price_list
+        return {price: price_list}
 
     def result(self, price_target=0):
         if price_target == 0:
@@ -87,14 +95,15 @@ class lucky_draw:
         print(price_list)
         return price_list
 
+
 if __name__ == '__main__':
     try:
         argv = sys.argv[1]
         argv = str(argv)
     except:
-        argv = "1"
+        argv = "0"
     ld = lucky_draw()
-    if argv in ["1", "2", "3"]:
+    if argv in ["0", "1", "2", "3"]:
         ld.draw(int(argv))
     elif argv == "c":
         ld.clear()
