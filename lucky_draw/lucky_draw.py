@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-#!/usr/bin/env python3
-# -*- coding:utf-8 -*-
-
 import csv
 import random
 import os
+import sys
 
 class lucky_draw:
     def __init__(self):
@@ -86,8 +84,23 @@ class lucky_draw:
             for emp in self.emplist:
                 if emp[3] == str(price):
                     price_list[price].append(emp)
+        print(price_list)
         return price_list
 
 if __name__ == '__main__':
+    try:
+        argv = sys.argv[1]
+        argv = str(argv)
+    except:
+        argv = "1"
     ld = lucky_draw()
-    ld.draw(1)
+    if argv in ["1", "2", "3"]:
+        ld.draw(int(argv))
+    elif argv == "c":
+        ld.clear()
+    elif argv == "v":
+        ld.view()
+    elif argv == "r":
+        ld.result(0)
+    elif argv in ["r0", "r1", "r2", "r3"]:
+        ld.result(int(argv[1]))
