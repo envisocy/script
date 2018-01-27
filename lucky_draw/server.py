@@ -38,8 +38,8 @@ def route_result():
     'position: fixed;top:20px;}#resultList{position: relative;margin: 0 auto;'\
     'top:250px;height: 500px;width: 1100px;}#resultList ul{position: absolute;'\
     'display: inline-block;list-style: none;padding: 0;margin: 0;}#first{'\
-    'top: 0px;left: 420px;width: 225px;}#second{top: 20px;left: 0px;'\
-    'width: 240px;}#thired{top: 40px;left: 870px;width: 260px;}#second li{'\
+    'top: 5%;left: 420px;width: 225px;}#second{top: 15%;left: 0px;'\
+    'width: 240px;}#thired{top: 20%;left: 870px;width: 260px;}#second li{'\
     'width: 40%;float: left;font: 25px bold;padding: 5px 0 5px 10%;color:'\
     'rgb(231, 228, 16);}#first li{width: 40%;float: left;font: 30px bold;'\
     'padding: 15px 0 15px 10%;color:rgb(231, 228, 16);}#thired li{width: 30%;'\
