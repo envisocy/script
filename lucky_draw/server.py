@@ -62,6 +62,7 @@ def route_draw():
     '''
     抽奖页
     '''
+    content = ld.draw()
     header = 'HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n'
     body = '<!DOCTYPE html><html lang="zh"><head><meta charset="UTF-8">'\
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">'\
@@ -78,22 +79,41 @@ def route_draw():
     'src="./draw.jpg" alt=""><div class="btnBack" class="btn"><a href="/">'\
     '<img style="height:60px;opacity:0.6" src="./btn-back.png" alt=""></a>'\
     '</div><div id="entryTitle"><ul>'
-    content = ld.draw()
     if content:
         price = list(content.keys())[0]
         body += '{}等奖中奖结果：'.format({1: "一", 2: "二", 3: "三"}[price])
         body += '</ul></div><div id="entryList">'
         for i in content[price]:
-            body += '<ul><li>' + i[0] + '</li></ul>'
-        body += '</div><div id="btnContinue"  class="btn"><a href="/draw">'\
+            body += '<ul><li>张三四</li></ul>'
+        body += '</div><div id="btnContinue"  class="btn"><a>'\
         '<img style="height:200px" src="/btn-redraw.png" alt=""></a></div>'\
+        '<script type="text/javascript">var data = ['
+        for i in ld.emplist:
+            body += '"' + i[0] + '",'
+        body += '];var timer = null;'\
+        'var flag = 0;function shuffle(arr) {var length = arr.length,'\
+        'randomIndex,temp;while (length) {randomIndex = Math.floor('\
+        'Math.random() * (length--));temp = arr[randomIndex];arr[randomIndex]'\
+        ' = arr[length];arr[length] = temp}return arr;}function render(list)'\
+        ' {var oTitle = document.getElementById("entryList")for (var i = 0; i'\
+        ' < list.length; i++) {oTitle.children[i].innerText = list[i]oTitle.'\
+        'children[i].style.fontSize = "38px"oTitle.children[i].style.color '\
+        '= "#ff344c"}}function fnplay() {timer = setInterval(function () '\
+        '{shuffle(data)render(data.slice(0, 5), 5)}, 60);}window.onload = '\
+        'function () {var begin = document.getElementById("btnContinue");'\
+        'begin.addEventListener("click", function (event) {event.preventDefau'\
+        'lt();if (flag++ % 2) {render(['
+        for i in content[price]:
+            body += '"' + i[0] + '",'
+        body += '])clearInterval(timer)}else{fnplay()}}, false);}</script>'\
         '</body></html>'
     else:
         body += '<div style="position: fixed;top:40%;left:36%;color:#ff344c;'\
         'line-height:200%;text-align: center;">抽奖已经结束！<br>'\
         '所有大奖都名花有主了哦！<br>恭喜中奖的亲们！</div></ul></div><div '\
         'id="btnContinue" class="btn"><a href="/result"><img style='\
-        '"position:fixed;height:80px;bottom:10%;left:44%;" src="/btn-view.png" alt=""></a></div></body></html>'
+        '"position:fixed;height:80px;bottom:10%;left:44%;" src="/btn-view.png"'\
+        ' alt=""></a></div></body></html>'
     r = header + '\r\n' + body
     return r.encode(encoding='utf-8')
 
