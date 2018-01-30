@@ -2,6 +2,7 @@
 
 import socket
 import lucky_draw
+import os
 
 ld = lucky_draw.lucky_draw()
 
@@ -77,36 +78,83 @@ def route_draw():
     'font: 38px bold;padding: 5px 20%;color:#ff344c;min-width: 100px;}'\
     'a:hover{cursor:pointer;}</style></head><body><img id="baImage" '\
     'src="./draw.jpg" alt=""><div class="btnBack" class="btn"><a href="/">'\
-    '<img style="height:60px;opacity:0.6" src="./btn-back.png" alt=""></a>'\
+    '<img style="height:60px;opacity:0.6" src="/btn-back.png" alt=""></a>'\
     '</div><div id="entryTitle"><ul>'
     if content:
         price = list(content.keys())[0]
         body += '{}等奖中奖结果：'.format({1: "一", 2: "二", 3: "三"}[price])
         body += '</ul></div><div id="entryList">'
         for i in content[price]:
-            body += '<ul><li>张三四</li></ul>'
+            body += '<ul><li>---</li></ul>'
         body += '</div><div id="btnContinue"  class="btn"><a>'\
-        '<img style="height:200px" src="/btn-redraw.png" alt=""></a></div>'\
-        '<script type="text/javascript">var data = ['
+        '<img style="height:200px" src="/btn-redraw.png" alt=""></a></div>'
+        # 总名单
+        body += '''
+        <script type="text/javascript">
+                    //定义一个数组变量存放几个数据，一个定时器，一个标识变量
+                    var data = ['''
         for i in ld.emplist:
             body += '"' + i[0] + '",'
-        body += '];var timer = null;'\
-        'var flag = 0;function shuffle(arr) {var length = arr.length,'\
-        'randomIndex,temp;while (length) {randomIndex = Math.floor('\
-        'Math.random() * (length--));temp = arr[randomIndex];arr[randomIndex]'\
-        ' = arr[length];arr[length] = temp}return arr;}function render(list)'\
-        ' {var oTitle = document.getElementById("entryList")for (var i = 0; i'\
-        ' < list.length; i++) {oTitle.children[i].innerText = list[i]oTitle.'\
-        'children[i].style.fontSize = "38px"oTitle.children[i].style.color '\
-        '= "#ff344c"}}function fnplay() {timer = setInterval(function () '\
-        '{shuffle(data)render(data.slice(0, 5), 5)}, 60);}window.onload = '\
-        'function () {var begin = document.getElementById("btnContinue");'\
-        'begin.addEventListener("click", function (event) {event.preventDefau'\
-        'lt();if (flag++ % 2) {render(['
+        body = body[:-1]
+        body += '''];
+        var timer = null;
+        var flag = 0;
+        //函数开始
+
+        function shuffle(arr) {
+            var length = arr.length,
+                randomIndex,
+                temp;
+            while (length) {
+                randomIndex = Math.floor(Math.random() * (length--));
+                temp = arr[randomIndex];
+                arr[randomIndex] = arr[length];
+                arr[length] = temp
+            }
+            return arr;
+        }
+
+        function render(list) {
+            var oTitle = document.getElementById("entryList")
+            for (var i = 0; i < list.length; i++) {
+                oTitle.children[i].innerText = list[i]
+                oTitle.children[i].style.fontSize = '38px'
+                oTitle.children[i].style.color = '#ff344c'
+            }
+        }
+
+        function fnplay(num) {
+            //var that=this;//这里指的是begin这个按钮 这里暂时不考虑这个。
+            //每个开始之前关闭一下定时器，不然每次按click的时候容易加快速度，以至于整个浏览器容易奔溃
+            //定义一个定时器
+            timer = setInterval(function () {
+                //Math.random()拿到的是0-1之前的数字，去乘数组的长度 再取整数可以拿到想要的数组下标
+                //floor去取整
+                //把拿到的数组的值写进去
+                shuffle(data)
+                render(data.slice(0, num))
+                // oTitle.innerHTML=data[random];
+            }, 60);
+            //按开始之后，让颜色改变一下
+        }
+        window.onload = function () {
+            fnplay(''' + str(len(content[price])) + ''')
+        //开始抽奖
+        var begin = document.getElementById('btnContinue');
+
+        begin.addEventListener("click", function (event) {
+            event.preventDefault();
+            render(['''
+        # 抽奖名单
         for i in content[price]:
             body += '"' + i[0] + '",'
-        body += '])clearInterval(timer)}else{fnplay()}}, false);}</script>'\
-        '</body></html>'
+        body = body[:-1]
+        body += '''])
+        clearInterval(timer)
+        this.children[0].href = '/draw'
+    }, false);
+}
+</script></body></html>'''
     else:
         body += '<div style="position: fixed;top:40%;left:36%;color:#ff344c;'\
         'line-height:200%;text-align: center;">抽奖已经结束！<br>'\
@@ -128,7 +176,7 @@ def error(code=404):
     return e.get(code, b'')
 
 def img(filename):
-    with open('./img/' + filename, 'rb') as f:
+    with open(os.path.dirname(os.path.realpath(__file__)) + os.sep + "img" + os.sep + filename, 'rb') as f:
         header = b'HTTP/1.x 200 OK\r\nContent-Type: image/gif\r\n\r\n'
         img = header + f.read()
         return img
