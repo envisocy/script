@@ -14,15 +14,86 @@ def route_index():
     body = '<!DOCTYPE html><html lang="zh"><head><meta charset="UTF-8">'\
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">'\
     '<meta http-equiv="X-UA-Compatible" content="ie=edge"><title>年会抽奖'\
-    '</title><style>#baImage{position: fixed;top: 0px;left: 0px;right: 0px;'\
+    '</title><style>#container{height: 100vh;width: 100vw;overflow: hidden;}'\
+    '#baImage{position: fixed;top: 0px;left: 0px;right: 0px;'\
     'bottom: 0px;width: 100%;height: 100%;z-index: -10;}.btn{width: 100%;'\
     '}#btnView{position: fixed;bottom:10%;left:35%;}'\
     '#btnContinue{position: fixed;bottom:8%;left:55% '\
-    ';}</style></head><body><img id="baImage" src="/index.jpg" '\
+    ';}</style></head><body id="container"><img id="baImage" src="/index.jpg" '\
     'alt=""><div  id="btnView"  class="btn"><a href="/result"><img style="height:'\
     '80px;" src="/btn-view.png" alt=""></a></div>'\
     '<div id="btnContinue" class="btn"><a href="/draw"><img style='\
-    '"height:200px;" src="/btn-draw.png" alt=""></a></div></body></html>'
+    '"height:200px;" src="/btn-draw.png" alt=""></a></div>'
+    body += """
+    ﻿<script>
+          //定义雪花
+          function CreateSnow(snowBox,src,style){
+            this.snowBox = document.getElementById(snowBox);//找到容器
+            this.snowStyle = Math.ceil(Math.random()*style);//雪花类型[1,2]
+            this.maxLeft = this.snowBox.offsetWidth-Math.random()*5+3;//运动范围
+            this.maxTop = this.snowBox.offsetHeight-Math.random()*5+3;
+            this.left = this.snowBox.offsetWidth*Math.random();//起始位置
+            this.top = this.snowBox.offsetHeight*Math.random();
+            this.angle=1.1+0.8*Math.random();//飘落角度
+            this.minAngle=1.1;
+            this.maxAngle=1.9;
+            this.angleDelta=0.01*Math.random();
+            this.speed=1.4+Math.random();//下落速度
+            this.createEle(src);//制作雪花dom   凹=放在最后，使得原型里能取到值
+          };
+          //雪片生成+下落
+          CreateSnow.prototype = {
+            createEle : function(baseSrc){//生成雪花元素
+              var srcIndex = baseSrc.lastIndexOf('.'),//获取最后一个'.'
+                src = baseSrc.substring(0,srcIndex)+this.snowStyle+baseSrc.substring(srcIndex,baseSrc.length);
+              var image = new Image();
+                image.src = src;
+              this.ele = document.createElement("img");
+              this.ele.setAttribute('src',src);
+              this.ele.style.position="absolute";
+              this.ele.style.zIndex="99";
+              this.snowBox.appendChild(this.ele);
+              //设置雪花尺寸
+              var img = this.ele;
+              image.onload = function(){
+                imgW = image.width;
+                img.setAttribute('width',Math.ceil(imgW*(0.1+Math.random())));
+              };
+            },
+            move : function(){//雪花运动
+              this.angleDelta=-this.angleDelta;
+              this.angle+=this.angleDelta;
+              this.top-=this.speed*Math.sin(this.angle*Math.PI);
+              if(this.top>this.maxTop){//雪花掉出来后回到顶部
+                  this.top=0;
+              }
+              this.ele.style.left=this.left+'px';//凹=加‘px’
+              this.ele.style.top=this.top+'px';
+            }
+          };
+          //下雪启动
+          function goSnow(snowBox,src,num,style){
+            var snowArr = [];
+            for(var j = 0 ; j<num ; j++){
+              snowArr.push(new CreateSnow(snowBox,src,style));
+            }
+            var makeSnowtime = setInterval(function(){
+              for(var i = snowArr.length-1;i>=0;i--){//找到数组中的最新的一个
+                if(snowArr[i]){
+                  snowArr[i].move();
+                }
+              }
+            },40);
+          };
+          //初始化加载
+          window.onload = function(){
+            var snowBox = 'container',//雪花容器
+              src = './snow.png',//雪花图基本命名<图片名就是snow+1/2/3/4...>
+              num = 28,//雪花数量
+              style = 2;//图片种类数
+            goSnow(snowBox,src,num,style);
+          };
+        </script></body></html>"""
     r = header + '\r\n' + body
     return r.encode(encoding='utf-8')
 
@@ -86,8 +157,10 @@ def route_draw():
         body += '</ul></div><div id="entryList">'
         for i in content[price]:
             body += '<ul><li>---</li></ul>'
-        body += '</div><div id="btnContinue"  class="btn"><a>'\
-        '<img style="height:200px" src="/btn-redraw.png" alt=""></a></div>'
+        body += '</div><div id="btnContinue"  class="btn"><a href="/draw">'\
+        '<img style="height:200px" src="/btn-redraw.png" alt=""></a>'\
+        '<a>'\
+        '<img style="height:200px" src="/btn-stop.png" alt=""></a></div>'
         # 总名单
         body += '''
         <script type="text/javascript">
@@ -140,9 +213,12 @@ def route_draw():
         window.onload = function () {
             fnplay(''' + str(len(content[price])) + ''')
         //开始抽奖
-        var begin = document.getElementById('btnContinue');
+        var begin = document.getElementById('btnContinue').children[0];
+        var stop = document.getElementById('btnContinue').children[1];
+        begin.style.display = "none"
+        stop.style.display = "block"
 
-        begin.addEventListener("click", function (event) {
+        stop.addEventListener("click", function (event) {
             event.preventDefault();
             render(['''
         # 抽奖名单
@@ -151,7 +227,8 @@ def route_draw():
         body = body[:-1]
         body += '''])
         clearInterval(timer)
-        this.children[0].href = '/draw'
+        begin.style.display = "block"
+        stop.style.display = "none"
     }, false);
 }
 </script></body></html>'''
@@ -202,6 +279,15 @@ def btn_redraw():
 def btn_back():
     return img("btn-back.png")
 
+def btn_stop():
+    return img("btn-stop.gif")
+
+def snow1():
+    return img("snow1.png")
+
+def snow2():
+    return img("snow2.png")
+
 def response_for_path(path):
     '''
     根据path调用相应的处理函数
@@ -216,8 +302,11 @@ def response_for_path(path):
         '/draw.jpg': jpg_draw,
         '/btn-draw.png': btn_draw,
         '/btn-view.png': btn_view,
+        '/btn-stop.png': btn_stop,
         '/btn-redraw.png': btn_redraw,
         '/btn-back.png': btn_back,
+        '/snow1.png':snow1,
+        '/snow2.png':snow2,
     }
     response = r.get(path, error)
     return response()
