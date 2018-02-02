@@ -143,19 +143,21 @@ def route_draw():
     'width: 100%;height: 100%;z-index: -10;}.btn{width: 100%;}.btnBack{'\
     'position: fixed;top:20px;}#btnContinue{position: fixed;bottom:20px;'\
     'text-align: center;}#entryTitle{position: fixed;top: 32%;left: 25%;'\
-    'text-align: center;font: 44px bold;}#entryList{position: fixed;top: 42%;'\
-    'left: 30%;width: 40%;text-align: center;}#entryList ul{display: inline-block;'\
-    'list-style: none;padding: 0;width: 200px;margin: 10px;}#entryList ul li{'\
-    'font: 38px bold;padding: 5px 20%;color:#ff344c;min-width: 100px;}'\
+    'text-align: center;font: 44px bold;margin-top: 25px;}#entryList{position: fixed;top: 42%;'\
+    'left: 32%;width: 40%;text-align: left;}#entryList ul{display: inline-block;'\
+    'list-style: none;padding: 0;width: 800px;margin: 60px auto;}#entryList ul li{'\
+    'font: 100px bold;padding: 5px 20%;color:#ff344c;min-width: 100px;word-spacing: 10px;}'\
     'a:hover{cursor:pointer;}</style></head><body><img id="baImage" '\
     'src="./draw.jpg" alt=""><div class="btnBack" class="btn"><a href="/">'\
     '<img style="height:60px;opacity:0.6" src="/btn-back.png" alt=""></a>'\
     '</div><div id="entryTitle"><ul>'
     if content:
         price = list(content.keys())[0]
-        body += '{}等奖中奖结果：'.format({1: "一", 2: "二", 3: "三"}[price])
+        price_dict = {1: "一", 2: "二", 3: "三"}
+        body += '{}等奖中奖结果： <small>({}/{})</small>'.format(price_dict[price], ld.price_limit[price][1], ld.price_limit[price][0])
         body += '</ul></div><div id="entryList">'
         for i in content[price]:
+            body += '<ul><li>---</li></ul>'
             body += '<ul><li>---</li></ul>'
         body += '</div><div id="btnContinue"  class="btn"><a href="/draw">'\
         '<img style="height:200px" src="/btn-redraw.png" alt=""></a>'\
@@ -167,7 +169,10 @@ def route_draw():
                     //定义一个数组变量存放几个数据，一个定时器，一个标识变量
                     var data = ['''
         for i in ld.emplist:
-            body += '"' + i[0] + '",'
+            if len(i[0]) == 2:
+                body += '"' + i[1] + ' · ' + i[0] + '" ,'
+            else:
+                body += '"' + i[1] + ' · ' + i[0] + '",'
         body = body[:-1]
         body += '''];
         var timer = null;
@@ -191,7 +196,7 @@ def route_draw():
             var oTitle = document.getElementById("entryList")
             for (var i = 0; i < list.length; i++) {
                 oTitle.children[i].innerText = list[i]
-                oTitle.children[i].style.fontSize = '38px'
+                oTitle.children[i].style.fontSize = '100px'
                 oTitle.children[i].style.color = '#ff344c'
             }
         }
@@ -223,7 +228,10 @@ def route_draw():
             render(['''
         # 抽奖名单
         for i in content[price]:
-            body += '"' + i[0] + '",'
+            if len(i[0]) == 2:
+                body += '"' + i[1] + " · " + i[0] + '" ,'
+            else:
+                body += '"' + i[1] + " · " + i[0] + '",'
         body = body[:-1]
         body += '''])
         clearInterval(timer)

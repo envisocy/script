@@ -10,7 +10,7 @@ import sys
 class lucky_draw:
     def __init__(self):
         # 奖项：[计划总人数, 已产生的人数, 每次输出人数, ]
-        self.price_limit = {1: [10, 0, 5], 2: [20, 0, 10], 3: [30, 0, 10]}
+        self.price_limit = {1: [10, 0, 1], 2: [20, 0, 1], 3: [30, 0, 1]}
         self.path = os.path.split(os.path.realpath(__file__))[0] + os.sep
         print ("\n")
         print ("*" * 12 , "宝儿电商年会抽奖程序", "*" * 12)
