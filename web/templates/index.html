@@ -3,34 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <style type="text/css">
-        body { background-color: #eaf3da;}
+        body {
+            font-family: Verdana, Arial, sans-serif;
+            font-size: medium;
+            font-weight: lighter;
+            line-height: 1.6em;
+            background-color: #6ebca6;
+        }
+        h1 {
+            font-size: 2em;
+            font-weight: bolder;
+        }
+        h2 {
+            font-size: 1.6em;
+        }
+        h5 {
+            font-size: 80%;
+            font-style: italic;
+        }
+        #topbox {
+            padding: 25px;
+            margin: 20px;
+            background-repeat: no-repeat;
+            background-position: top left;
+            padding: 10px 80px 10px 80px;
+            padding-top: 0px;
+            margin-right: 100px;
+            border-style: dashed;
+            border-color: gray;
+        }
+        .underline {
+            text-decoration: underline;
+            text-decoration-color: gray;
+            border-radius: 3em;
+        }
+        ul {
+            font-style: italic;
+            margin-left: 40px;
+            line-height: 2.0em;
+        }
+        ul li b {
+            font-style: normal;
+        }
     </style>
     <title>html & CSS 测试主页</title>
 </head>
 <body>
-    <h1>《Head First HTML & CSS》代码测试页</h1>
+    <h1 id="top-title">《Head First HTML & CSS》代码测试页</h1>
     <a href="/login">【点击登陆】</a>
     <img src="/static?file=doge.gif"/>
     <img src="/static?file=doge1.jpg"/>
     <img src="/static?file=doge2.gif"/>
-    <h5>[luó ji]</h5>
-    <h1 id="logic">逻辑</h1>
-    <h2>思维的规律和规则</h2>
-    <p>狭义上逻辑既指思维的规律，也指研究思维规律的学科即逻辑学。广义上逻辑泛指规律，包括思维规律和客观规律。逻辑包括形式逻辑与辩证逻辑，形式逻辑包括归纳逻辑与演绎逻辑.
-        <br>逻辑指的是思维的规律和规则，是对思维过程的抽象。
-        <br>从狭义来讲，逻辑就是指形式逻辑或抽象逻辑，是指人的抽象思维的逻辑；广义来讲，逻辑还包括具象逻辑，即人的整体思维的逻辑。
-    <br></p>
+    <div id="topbox">
+        <h5>[luó ji]</h5>
+        <h1 id="logic">逻辑</h1>
+        <h2 class="underline">思维的规律和规则</h2>
+        <p class="redfont">狭义上逻辑既指思维的规律，也指研究思维规律的学科即逻辑学。广义上逻辑泛指规律，包括思维规律和客观规律。逻辑包括形式逻辑与辩证逻辑，形式逻辑包括归纳逻辑与演绎逻辑.
+            <br>逻辑指的是思维的规律和规则，是对思维过程的抽象。
+            <br>从狭义来讲，逻辑就是指形式逻辑或抽象逻辑，是指人的抽象思维的逻辑；广义来讲，逻辑还包括具象逻辑，即人的整体思维的逻辑。
+        <br></p>
+    </div>
     <ul>
-        <li>中文名 逻辑</li>
-        <li>德语 Logik</li>
-        <li>外文名 Logic</li>
-        <li>注    音 luó ji</li>
-        <li>中文首译 1902年严复译《穆勒名学》</li>
-        <li>定    义 指的是思维的规律和规则</li>
-        <li>源    自 古典希腊语 (logos)</li>
-        <li>直    译 逻辑</li>
-        <li>日文 论理（ろんり）</li>
-        <li>意    译 思辑</li>
+        <li><b>中文名</b> 逻辑</li>
+        <li><b>德语</b> Logik</li>
+        <li><b>外文名</b> Logic</li>
+        <li><b>注    音</b> luó ji</li>
+        <li><b>中文首译</b> 1902年严复译《穆勒名学》</li>
+        <li><b>定    义</b> 指的是思维的规律和规则</li>
+        <li><b>源    自</b> 古典希腊语 (logos)</li>
+        <li><b>直    译</b> 逻辑</li>
+        <li><b>日文</b> 论理（ろんり）</li>
+        <li><b>意    译</b> 思辑</li>
     </ul>
     <h2>定义</h2>
     <p>逻辑狭义上逻辑既指思维的规律，也指研究思维规律的学科即逻辑学。<br>
