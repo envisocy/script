@@ -48,6 +48,7 @@ def run(host="", port=3001):
 
             # 调用路由，运行响应函数
             response = response_for_path(request.path)
+            log(response)
             s.sendall(response)
             connection.close()
 
@@ -66,17 +67,18 @@ def parsed_path(raw_path):
 
 def response_for_path(path):
     r = {
-        "/" : index
+        "/" : index,
     }
     # r.update(route_dict)
     response = r.get(path, error)
+    return response(request.path)
 
-def error():
+def error(path):
     response = "HTTP/1.1 404 NOT FOUND\r\n\r\n"\
     "<html><body><h1>404</h1><p>Not Found</p></body></html>"
     return response
 
-def index():
+def index(path):
     response = "HTTP/1.1 200 OK\r\n\r\n"\
     "<html><body><h1>Index.html</h1></body></html>"
     return response
