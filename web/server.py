@@ -75,6 +75,7 @@ def run(host="", port=3000):
             log("method:", request.method)
             log("body:", request.body)
             response = response_for_path(path)
+            log("[response]\n", response)
 
             # 发送响应
             connection.sendall(response)
