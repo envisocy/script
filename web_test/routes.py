@@ -2,6 +2,10 @@ from utils import log
 from models.message import Message
 from models.user import User
 
+# 保存所有的messages
+message_list = []
+
+
 def template(name):
     path = 'templates/' + name
     with open(path, "r", encoding="utf-8") as f:
@@ -71,10 +75,26 @@ def route_register(request):
     r = header + '\r\n' + body
     return r.encode(encoding='utf-8')
 
+def route_message(request):
+    header = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n"
+    log("本次请求的 method", request.method)
+    if request.method == "POST":
+        form = request.form()
+        log("****", form)
+        msg = Message.new(form)
+        log("post", form)
+        message_list.append(msg)
+    body = template("html_basic.html")
+    megs = '<br>'.join([str(m) for m in message_list])
+    body = body.replace("{{messages}}", megs)
+    r = header + "\r\n" + body
+    return r.encode(encoding="utf-8")
+
+
 route_dict = {
     "/": route_index,
     "/favicon.ico": route_favicon,
     "/login": route_login,
     "/register": route_register,
-    #"/messages": route_message,
+    "/messages": route_message,
 }

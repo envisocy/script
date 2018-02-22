@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <!-- 注释是这样的, 不会被显示出来 -->
 <!--
@@ -18,7 +17,7 @@
     <body>
         <!-- html 中的空格是会被转义的, 所以显示的和写的是不一样的 -->
         <!-- 代码写了很多空格, 显示的时候就只有一个 -->
-        很        好普通版
+        很好普通版
         <h1>很好 h1 版</h1>
         <h2>很好 h2 版</h2>
         <h3>很好 h3 版</h3>
@@ -28,14 +27,14 @@
         <!-- get post 的区别上课会讲 -->
         <form action="/messages" method="post">
             <!-- textarea 是一个文本域 -->
-            <!-- name rows cols 都是属性, 用处上课讲 -->
-            <textarea name="message" rows="8" cols="40"></textarea>
-            <textarea name="author" rows="8" cols="40"></textarea>
+            <!-- name 属性, 用处上课讲 -->
+            <textarea name="message"></textarea>
+            <textarea name="author"></textarea>
             <!-- button type=submit 才可以提交表单 -->
             <button type="submit">POST 提交</button>
         </form>
         <form action="/messages" method="get">
-            <textarea name="message" rows="8" cols="40"></textarea>
+            <textarea name="message"></textarea>
             <button type="submit">GET 提交</button>
         </form>
     {{messages}}
