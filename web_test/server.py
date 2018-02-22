@@ -3,7 +3,7 @@ from utils import log
 from routes import route_dict
 from routes import route_static
 
-import urllib
+import urllib.parse
 import socket
 
 

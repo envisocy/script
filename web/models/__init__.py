@@ -60,6 +60,7 @@ class Model(object):
         # __dict__ 是包含了对象所有属性和值的字典
         l = [m.__dict__ for m in models]
         path = self.db_path()
+        log("***", l)
         save(l, path)
 
     def __repr__(self):

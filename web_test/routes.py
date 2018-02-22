@@ -1,4 +1,6 @@
 from utils import log
+from models.message import Message
+from models.user import User
 
 def template(name):
     path = 'templates/' + name
@@ -42,7 +44,7 @@ def route_login(request):
         form = request.form()   # 将内容转化为字典
         u = User.new(form)      # ?
         if u.validate_login():
-            result = "登录成功，欢迎" + u + "回来！"
+            result = "登录成功，欢迎" + u.username + "回来！"
         else:
             result = "用户名或密码错误！"
     else:   # get
