@@ -1,10 +1,21 @@
+import random
+
 from utils import log
 from models.message import Message
 from models.user import User
 
 # 保存所有的messages
 message_list = []
+# session 可以在服务端实现过期功能
+session = {}
 
+def random_str():
+    seed = "abcdefghijklmnopqrstuvwxyz1234567890~!@#$%^&*()_+-<>,.?"
+    s = ""
+    for i in range(16):
+        random_index = random.randint(0, len(seed)-1)
+        s += seed[random_index]
+    return s
 
 def template(name):
     path = 'templates/' + name
@@ -25,9 +36,8 @@ def route_static(request):
         return img
 
 def current_user(request):
-    # session_id = request.cookies.get('user', '')
-    # username = session.get(session_id, '【游客】')
-    username = request.cookies.get("user", "【游客】")
+    session_id = request.cookies.get('user', '')
+    username = session.get(session_id, '【游客】')
     return username
 
 def response_with_header(headers):
@@ -71,17 +81,23 @@ def route_login(request):
         form = request.form()   # 将body内容转化为字典
         u = User.new(form)
         if u.validate_login():
-            headers["Set-cookie"] = "user={}".format(u.username)
+            session_id = random_str()
+            session[session_id] = u.username
+            headers["Set-cookie"] = "user={}".format(session_id)
             result = "登录成功，欢迎" + u.username + "回来！"
+            username = u.username # 防止头部显示【游客】
         else:
             result = "用户名或密码错误！"
     else:   # get
         result = ""
     body = template("login.html")
+    if username == "【游客】":
+        body = body.replace("{{form}}", template("login_form.html"))
+    else:
+        body = body.replace("{{form}}", "<a href='/'><button>返回</button></a>")
     body = body.replace("{{result}}", result)
     body = body.replace("{{username}}", username)
     header = response_with_header(headers)
-    log(body)
     r = header + "\r\n" + body
     return r.encode("utf-8")
 
@@ -109,14 +125,14 @@ def route_message(request):
     headers = {
         'Content': 'text/html'
     }
-    log("本次请求的 method", request.method)
+    username = current_user(request)
     if request.method == "POST":
         form = request.form()
         msg = Message.new(form)
         message_list.append(msg)
     body = template("html_basic.html")
     megs = '<br>'.join([str(m) for m in message_list])
-    body = body.replace("{{username}}", request.cookies.get("user", "【游客】"))
+    body = body.replace("{{username}}", username)
     body = body.replace("{{messages}}", megs)
     header = response_with_header(headers)
     r = header + "\r\n" + body

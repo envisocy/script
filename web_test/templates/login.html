@@ -7,13 +7,7 @@
 <body>
     <h1>登录</h1>
     <h2>你好 {{username}}!</h2>
-    <form action="/login" method="post">
-        <input type="text" name="username" placeholder="请输入用户名">
-        <br>
-        <input type="text" name="password" placeholder="请输入密码">
-        <br>
-        <button type="submit">登录</button>
-    </form>
+    {{form}}
     <h3>{{result}}</h3>
 </body>
 </html>

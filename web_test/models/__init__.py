@@ -14,7 +14,7 @@ def save(data, path):
 
 def load(path):
     '''
-    从文件中载入数据病转化为 dict 或 list
+    从文件中载入数据并转化为 dict 或 list
     path 是保存文件的路径
     '''
     with open(path, 'r', encoding="utf-8") as f:
@@ -27,6 +27,9 @@ class Model(object):
 
     @classmethod
     def db_path(cls):
+        '''
+        通过调用cls.__name__返回MVC中的数据文档路径
+        '''
         classname = cls.__name__
         path = "db/{}.txt".format(classname)
         return path
@@ -52,12 +55,48 @@ class Model(object):
         '''
         models = self.all()
         log('models', models)
-        models.append(self)
+        if self.__dict__.get('id') is None:
+            # 添加id
+            if len(models) > 0:
+                # 不是第一条数据
+                self.id = models[-1].id + 1
+            else:
+                # 第一条数据
+                self.id = 1
+            models.append(self)
+        else:
+            # 有id说明已经存在于数据文件中的数据
+            # 那么就找到这条数据替换掉
+            # 这里需要得到下标，所以使用enumerate()
+            index = -1
+            for i, m in enumerate(models):
+                if m.id == self.id:
+                    index = i
+                    break
+            # 看看是否找到下标
+            # 如果找到就替换掉这条数据
         # __dict__包含了对象所有属性和值得字典
         l = [m.__dict__ for m in models]
         path = self.db_path()
         log("***", l)
         save(l, path)
+
+    @classmethod
+    def find_by(cls, **kwargs):
+        '''
+        kwargs 是只有一个元素的dict
+        如：u = User.find_by(username='gua')
+        查找对应的db/User.txt 是否有 username 为 gua 的值
+        '''
+        log('kwargs: ', kwargs)
+        k, v = '', ''
+        for key, value in kwargs.items():
+            k , v = key, value
+        for m in cls.all():
+            if v == m.__dict__[k]:
+                # 和 getattr(m, k) 等价
+                return m
+        return None
 
     def __repr__(self):
         '''

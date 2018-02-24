@@ -1,3 +1,4 @@
+
 from utils import log
 
 from routes import route_dict
@@ -5,7 +6,6 @@ from routes import route_static
 
 import urllib.parse
 import socket
-
 
 class Request():
     # 保存请求的数据
@@ -53,7 +53,9 @@ class Request():
                 k, v = kv.split('=')
                 self.cookies[k] = v
 
+
 request = Request()
+
 
 def run(host="", port=3001):
     log("服务器启动在 {0} 端口，请通过 localhost.com:{0} 访问！".format(port))
