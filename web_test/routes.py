@@ -40,8 +40,8 @@ def current_user(request):
     username = session.get(session_id, '【游客】')
     return username
 
-def response_with_header(headers):
-    header = "HTTP/1.1 201 Test OK\r\n"
+def response_with_header(headers, code=200):
+    header = "HTTP/1.1 " + str(code) + " Test OK\r\n"
     header += ''.join(['{}: {}\r\n'.format(k, v) for k,v in headers.items()])
     return header
 
@@ -126,6 +126,10 @@ def route_message(request):
         'Content': 'text/html'
     }
     username = current_user(request)
+    # L.5 使用 redirect() 函数挡掉非正常请求
+    if username == "【游客】":
+        log("**Debug, route msg 未登录")
+        return redirect("/")
     if request.method == "POST":
         form = request.form()
         msg = Message.new(form)
@@ -138,6 +142,19 @@ def route_message(request):
     r = header + "\r\n" + body
     return r.encode(encoding="utf-8")
 
+def redirect(url):
+    '''
+    服务器收到302的时候
+    会在HTTP header 里面找 Location 字段并获取一个 url
+    然后自动请求新的 url
+    '''
+    headers = {
+        "Location": url,
+    }
+    # 增加 Location 字段并生成 HTTP 响应返回
+    # 注意，没有 HTTP body 部分
+    r = response_with_header(headers, 302) + "\r\n"
+    return r.encode("utf-8")
 
 route_dict = {
     "/": route_index,
