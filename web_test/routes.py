@@ -40,8 +40,8 @@ def current_user(request):
     username = session.get(session_id, '【游客】')
     return username
 
-def response_with_header(headers, code=200):
-    header = "HTTP/1.1 " + str(code) + " Test OK\r\n"
+def response_with_header(headers, code=200, desc="Test OK"):
+    header = "HTTP/1.1 {} {}\r\n".format(code, desc)
     header += ''.join(['{}: {}\r\n'.format(k, v) for k,v in headers.items()])
     return header
 
@@ -144,7 +144,7 @@ def route_message(request):
 
 def redirect(url):
     '''
-    服务器收到302的时候
+    服务器收到302(临时跳转)的时候
     会在HTTP header 里面找 Location 字段并获取一个 url
     然后自动请求新的 url
     '''
@@ -153,7 +153,7 @@ def redirect(url):
     }
     # 增加 Location 字段并生成 HTTP 响应返回
     # 注意，没有 HTTP body 部分
-    r = response_with_header(headers, 302) + "\r\n"
+    r = response_with_header(headers, 302, "Redirect OK") + "\r\n"
     return r.encode("utf-8")
 
 route_dict = {

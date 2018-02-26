@@ -3,6 +3,7 @@ from utils import log
 
 from routes import route_dict
 from routes import route_static
+from routes_todo import route_dict as todo_route
 
 import urllib.parse
 import socket
@@ -115,6 +116,8 @@ def response_for_path(path):
     '/static': route_static,
     }
     r.update(route_dict)
+    # 添加todo路由
+    r.update(todo_route)
     response = r.get(path, error)
     return response(request)
 

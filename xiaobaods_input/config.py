@@ -4,5 +4,6 @@
 
 # keywords config
 top_list_win = ["D:\\download", "E:\\download", "G:\\download",\
-                "D:\\搜狗高速下载", "E:\\搜狗高速下载", "G:\\搜狗高速下载"]
+                "D:\\搜狗高速下载", "E:\\搜狗高速下载", "G:\\搜狗高速下载",
+                "H:\\download",]
 top_list_linux = ["~/Downloads"]
