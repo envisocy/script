@@ -15,9 +15,6 @@ def response_with_header(headers, code=200, desc="Test OK"):
     return header
 
 def redirect(url):
-    '''
-    302: 重定向
-    '''
     headers = {
         "Location": url,
     }
@@ -29,12 +26,12 @@ def index(request):
     todo 首页
     '''
     headers = {
-        "Content": "text/html"
+        "Content": "text/html",
     }
     uname = current_user(request)
     u = User.find_by(username=uname)
     if u is None:
-        log("***** 未登录 跳转")
+        log("** ERROR ** 未登录 跳转")
         return redirect('/')
     todo_list = Todo.find_all(user_id=u.id)
     todo_html = ''.join(['<h3>{} : {}</h3>'.format(t.id, t.title)
