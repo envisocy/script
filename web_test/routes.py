@@ -92,9 +92,9 @@ def route_login(request):
         result = ""
     body = template("login.html")
     if username == "【游客】":
-        body = body.replace("{{form}}", template("login_form.html"))
+        body = body.replace("{{form}}", template("unlogin_form.html"))
     else:
-        body = body.replace("{{form}}", "<a href='/'><button>返回</button></a>")
+        body = body.replace("{{form}}", template("login_form.html"))
     body = body.replace("{{result}}", result)
     body = body.replace("{{username}}", username)
     header = response_with_header(headers)
