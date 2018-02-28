@@ -5,7 +5,7 @@ from models.user import User
 from routes import current_user
 
 def template(name):
-    path = "/templates/" + name
+    path = "templates/" + name
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
 
@@ -32,14 +32,17 @@ def index(request):
     u = User.find_by(username=uname)
     if u is None:
         log("** ERROR ** 未登录 跳转")
-        return redirect('/')
+        return redirect('/login')
     todo_list = Todo.find_all(user_id=u.id)
-    todo_html = ''.join(['<h3>{} : {}</h3>'.format(t.id, t.title)
+    todo_html = ''.join(['<h3>{}({}): {}</h3>'.format(t.id, t.user_id, t.title)
                          for t in todo_list])
+    if not todo_html:
+        todo_html = '<br><b3>暂无TODO记录！</b3>'
     body = template('todo_index.html')
+    body = body.replace('{{username}}', u.username)
     body = body.replace('{{todos}}', todo_html)
     header = response_with_header(headers)
-    r = headers + "\r\n" + body
+    r = header + "\r\n" + body
     return r.encode(encoding="utf-8")
 
 def edit(request):

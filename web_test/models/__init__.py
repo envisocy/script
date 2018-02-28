@@ -108,7 +108,7 @@ class Model(object):
             k , v = key, value
         all = cls.all()
         data = []
-        for m in all():
+        for m in all:
             if v == m.__dict__[k]:
                 # 和 getattr(m, k) 等价
                 data.append(m)
