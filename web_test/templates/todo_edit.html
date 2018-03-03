@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TODO 修改</title>
+</head>
+<body>
+    <h1>TODO 更新，你好{{username}}！</h1>
+    <form action="/todo/update" method="post">
+        <input type="text" name="id" value="{{todo_id}}">
+        <br>
+        <input type="text" name="title" value="{{todo_title}}" placeholder="新的TODO内容...">
+        <br>
+        <button type="submit">更新</button>
+    </form>
+</body>
+</html>

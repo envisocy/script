@@ -53,8 +53,10 @@ class Model(object):
         '''
         save 函数用于把一个 Model 的实例保存到文件中
         '''
+        log('debug save')
         models = self.all()
         log('models', models)
+        first_index = 0
         if self.__dict__.get('id') is None:
             # 添加id
             if len(models) > 0:
@@ -62,7 +64,8 @@ class Model(object):
                 self.id = models[-1].id + 1
             else:
                 # 第一条数据
-                self.id = 1
+                log('first_index', first_index)
+                self.id = first_index
             models.append(self)
         else:
             # 有id说明已经存在于数据文件中的数据
@@ -75,6 +78,8 @@ class Model(object):
                     break
             # 看看是否找到下标
             # 如果找到就替换掉这条数据
+            if index > -1:
+                models[index] = self
         # __dict__包含了对象所有属性和值得字典
         l = [m.__dict__ for m in models]
         path = self.db_path()
