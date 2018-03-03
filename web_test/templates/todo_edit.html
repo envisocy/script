@@ -5,9 +5,9 @@
     <title>TODO 修改</title>
 </head>
 <body>
-    <h1>TODO 更新，你好{{username}}！</h1>
+    <h1>TODO 修改，你好{{username}}！</h1>
     <form action="/todo/update" method="post">
-        <input type="text" name="id" value="{{todo_id}}">
+        <input readonly="readonly" type="text" name="id" value="{{todo_id}}">
         <br>
         <input type="text" name="title" value="{{todo_title}}" placeholder="新的TODO内容...">
         <br>

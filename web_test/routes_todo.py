@@ -112,7 +112,13 @@ def update(request):
     return redirect('/todo')
 
 def delete_todo(request):
-    pass
+    uname = current_user(request)
+    u = User.find_by(username=uname)
+    todo_id = request.query.get("id", "-1")
+    t = Todo.find_by(id=todo_id)
+    if t is not None:
+        t.remove()
+    return redirect("/todo")
 
 route_dict = {
     '/todo': index,
