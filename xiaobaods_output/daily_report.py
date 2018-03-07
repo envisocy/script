@@ -24,8 +24,9 @@ def request_df(sql_msg, date, variable="交易时间"):
     # 更新为7天数据
     sql_final = "SELECT * FROM ERP_Sales_ledger WHERE \
                 DATE_FORMAT(`" + variable +"`, '%Y-%m-%d')> '" +\
-                datetime.datetime.strftime(date - datetime.timedelta(7),
+                datetime.datetime.strftime(date - datetime.timedelta(2),
                                            "%Y-%m-%d") + "';"
+                # Test 7->2
     df = pd.read_sql_query(sql_final, conn)
     conn.close()
     return df, date
@@ -45,14 +46,21 @@ class daily_report(object):
         # 格式化为str的末日时间：
         self.date = datetime.datetime.strftime(self._date, "%Y-%m-%d")
 
-    def company_sheet(self, variable="件数"):
+    def company_sheet(self, variable="件数", mode="all"):
         '''
         公司详情
         parameter:
         variable: 件数，销售额
+        mode: all, true, manul
         '''
+        if mode == "true":
+            df = self._df.loc[self._df["仓库"] != "虚拟仓库", :]
+        elif mode == "manul":
+            df = self._df.loc[self._df["仓库"] == "虚拟仓库", :]
+        else:
+            df = self._df
         variable_list = {"件数": "数量", "销售额": "实际结算", }
-        df_company = pd.pivot_table(self._df, index="店铺", columns="日期", \
+        df_company = pd.pivot_table(df, index="店铺", columns="日期", \
                                     values=(variable_list[variable]), \
                                     aggfunc=sum, fill_value=0)
         df_company.sort_values(df_company.columns[-1], ascending=False)
@@ -69,10 +77,12 @@ class daily_report(object):
         Parameter：
         form:
         - general: 公司总况
-        - hist: 销售直方图
+        - store: 销售直方图
+        - percent: 比例图
+        - sale_quote: 销售指标
         '''
-        df1 = company_sheet("件数")
-        df2 = company_sheet("销售额")
+        df1 = self.company_sheet( "件数")
+        df2 = self.company_sheet( "销售额")
         if form == "general":
             df1.rename(index={"total": "件数"}, inplace=True)
             df2.rename(index={"total": "销售额"}, inplace=True)
@@ -83,7 +93,7 @@ class daily_report(object):
             '''
             return pd.concat([df1.loc["件数", self.date:], \
                             df2.loc["销售额", self.date:]], axis=1).T
-        if form == "hist":
+        if form == "store":
             df = pd.concat([df1["2018-03-05"], df2["2018-03-05"]], axis=1)
             '''
             店铺, 件数, 销售额
@@ -101,19 +111,28 @@ class daily_report(object):
             ... xxx, xxx, xxx
             '''
             return df2.loc[:, ["percent", "percent_week", "percent_vs"]]
+        if form == "sale_quote":
+            return df1
+        return "No such Dataframe."
 
 
-    def manul_operation(self):
+    def manul_operation(self, form="store"):
         '''
         刷单表
         '''
-        pass
-
-    def store_sales_report(self):
-        '''
-        店铺销售情况
-        '''
-        pass
+        df_true = self.company_sheet(variable="件数", mode="true")
+        df_manul = self.company_sheet(variable="件数", mode="manul")
+        df = pd.merge(df_true, df_manul, left_index=True, right_index=True, \
+                      suffixes=('_true', '_manul'))
+        if form == "general":
+            return df
+        if form == "store":
+            df.rename(columns={self.date+"_true": "true", \
+                               self.date+"_manul": "manul",})
+            print(df.columns())
+            df["manul_ratio"] = df["manul"]/df["true"]
+            return df[["true", "manul", "manul_ratio"]]
+        return "No such Dataframe."
 
     def type_sales_report(self):
         '''
