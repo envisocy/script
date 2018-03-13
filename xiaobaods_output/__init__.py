@@ -10,4 +10,4 @@ p 展示页（含大量需二次转化信息）
 d 每日页面展示
 '''
 
-from xiaobaods_output import basic
+from xiaobaods_output.basic import function

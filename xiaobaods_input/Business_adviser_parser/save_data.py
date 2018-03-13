@@ -65,6 +65,7 @@ def save_to_mysql_mode1(mode, msg, items, sql_list=["localhost"]):
             db="baoersqlbasic")
         try:
             cursor = conn.cursor()
+            print(sql_insert)    # !!!!!!!
             cursor.execute(sql_insert)
             conn.commit()
             print("# ", sql, ":Write successfully")
