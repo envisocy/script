@@ -69,8 +69,11 @@ class function():
         self.epsilon = kwargs.get("epsilon", 350)
         self.zeta = kwargs.get("zeta", 0)
 
-    def run(self, fun="a"):
+    def run(self, fun="a", **kwargs):
         self.time_s = time.time()
+        # 重新复制对应的self变量参数
+        for item in kwargs:
+            self.__dict__[item] = kwargs[item]
         if fun == "a":
             if not self.alg:
                 df = self.xiaobaods_a()
