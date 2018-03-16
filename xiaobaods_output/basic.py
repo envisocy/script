@@ -93,7 +93,7 @@ class function():
             df = self.xiaobaods_pi()
         else:
             print(" * fun not be defined!")
-        if self.debug == 6 or self.debug == 8:
+        if self.debug in (0, 6, 8):
             return df
 
     def request_date(self, fun="a"):
@@ -193,7 +193,8 @@ class function():
             except Exception as e:
                 print("> 输出CSV文件失败，错误原因：", e)
         else:
-            print(df.to_json(orient="index"))
+            # print(df.to_json(orient="index"))
+            return df.to_json(orient="index")
 
     def xiaobaods_a(self):
         '''
