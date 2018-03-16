@@ -37,7 +37,7 @@ class function():
         self.length = kwargs.get("length", 7)     # 针对二次筛选需求的上溯天数
         self.table = kwargs.get("table", "")      # 具体的数据表，具体函数需指定
         self.variable = kwargs.get("variable", "热销排名")# 二次筛选需求的显示变量
-        self.fillna = kwargs.get("fillna", "")  # 填充空值
+        self.fillna = kwargs.get("fillna", " ")  # 填充空值
         self.debug = kwargs.get("debug", 0)     # 选择输出项目
         self.path = kwargs.get("path","")   # debug=9,输出csv的路径指定
         self.choice = kwargs.get("choice","热搜核心词")   # xiaobaods_w 中的表单选择
@@ -69,11 +69,11 @@ class function():
         self.epsilon = kwargs.get("epsilon", 350)
         self.zeta = kwargs.get("zeta", 0)
 
-    def run(self, fun="a", **kwargs):
+    def run(self, fun="a"):
         self.time_s = time.time()
         # 重新复制对应的self变量参数
-        for item in kwargs:
-            self.__dict__[item] = kwargs[item]
+        # for item in kwargs:
+        #     self.__dict__[item] = kwargs[item]
         if fun == "a":
             if not self.alg:
                 df = self.xiaobaods_a()

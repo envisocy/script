@@ -28,12 +28,13 @@
 #### 载包调用范例
 
 ```
-import xiaobaods_output
-fun = xiaobaods_output.function()
-a.run(fun="a", line_f="20", date="2018-01-01")
+"from xiaobaods_output import function
+fun = function(line_f="20", date="2018-01-01")
+fun.run(fun="a")"
 ```
 
 #### 参数 parameter
+运行函数：run()
 - fun 调用的程序类型
 	- a(Default) 类目趋势：热销商品趋势分析/流量商品趋势分析
 	- al 算法排序，筛选增长率高的宝贝
@@ -41,6 +42,8 @@ a.run(fun="a", line_f="20", date="2018-01-01")
 	- w 行业热词榜
 	- ps 面板
 	- pi 面板
+
+实例化function()类的参数：
 - debug 数据输出类型
 	- None(Default) Json数据形式返回
 	- 1 基本的数据参数信息
@@ -49,16 +52,21 @@ a.run(fun="a", line_f="20", date="2018-01-01")
 	- 7 print数据，数据格式
 	- 8 返回数据，数据格式pandas.DataFrame
 	- 9 输出到指定路径，数据格式CSV文件
-- line_b(Default=0) 起始数据条数
-- line_f(Default=20) 结束数据条数
-- date(Default今天前一天有数据的日期) 选择的日期，格式"YYYY-MM-DD"
-- date_range [算法专有]日期范围
-- category(Default="牛仔裤") 类目
-- classification(Default="款式") 分类
-- attributes(Default="铅笔裤") 二级分类
-- length(Default=7) 前溯日期范围，显示其他筛选的时间长度
-- table(通常情况无需传参) 数据库指定
-- variable(Default="热销排名") 二次筛选需求显示的变量值
-- fillna(Default=0) 填充空值的替换
-- path(Default为桌面) Debug=9时输出CSV文档的位置
-- choice(Default="热搜核心词") [关键词]表单选择
+- line_b(Default=0) <int> 起始数据条数
+- line_f(Default=20) <int> 结束数据条数
+- date(Default今天前一天有数据的日期) <str> 选择的日期，格式"YYYY-MM-DD"
+- date_range <str> [算法专有]日期范围
+- category(Default="牛仔裤") <str> 类目
+- classification(Default="款式") <str> 分类
+- attributes(Default="铅笔裤") <str> 二级分类
+- length(Default=7) <int> 前溯日期范围，显示其他筛选的时间长度
+- table(通常情况无需传参) <str> 数据库指定
+- variable(Default="热销排名") <str> 二次筛选需求显示的变量值
+- fillna(Default=" ") <str> 填充空值的替换
+- path(Default为Windows桌面路径) <str> Debug=9时输出CSV文档的位置
+- choice(Default="热搜核心词") <str> [关键词]表单选择
+- keyword(Default="日期：") <str> 为防止变量名排序混乱导致日期异常排列在前面，在日期前固定添加的字段
+- rankl/rankm <int> 排名大于或小于的值【筛选模块】
+- titler <str> 标题中包含的值【筛选模块】
+- storer <str> 店铺名中包含的值【筛选模块】
+- v\*l/v\*m(*=1~5) <int> 对应变量位置\*大于或小于变量【筛选模块】
