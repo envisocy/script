@@ -177,6 +177,7 @@ class function():
             print("- Running time：%.4f s" % (time.time() - self.time_s))
             print(sql)
         elif self.debug == 6:
+            self.fillna = ""
             '''
             算法接口，标题调整为序列
             '''
@@ -420,12 +421,14 @@ class function():
                         df.loc[:,"2"] + df.loc[:,"3"] + df.loc[:,"4"] + \
                         df.loc[:,"5"]) * 3
             # 参数
-            df["r2"] = df["lxy"]/df["lxx"] * -1
-            df["br"] = np.square(df["lxy"]/np.sqrt(df["lxx"] * df["lyy"]))
+            df["r2"] = df.loc[:, "lxy"]/df.loc[:, "lxx"] * -1
+            # df.to_csv("C:\\Users\\Administrator\\Desktop\\{}_step1.csv".format(self.date), encoding="gbk")
+            df["br"] = np.square(df.loc[:, "lxy"]/(df.loc[:, "lxx"] * df.loc[:, "lyy"]) ** 0.5)
             df["weg"] = 1/(df.loc[:,"5"] ** self.alpha)
             df["score"] = (df.loc[:, "std"] * self.beta + df.loc[:, "br"] *\
                 self.gamma) * df.loc[:, "r2"] * self.delta * \
                 df.loc[:, "weg"] * self.epsilon
+            # df.to_csv("C:\\Users\\Administrator\\Desktop\\{}_step2.csv".format(self.date), encoding="gbk")
             df.sort_values(by=["score"], ascending=False ,inplace=True)
             # line_b/f
             df = df.iloc[self.line_b: self.line_f]

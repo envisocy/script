@@ -121,7 +121,7 @@ class function():
     def pr_input(self, date="", date_range=7, category_list=[], alg="Dec",
                  length=20):
         if not category_list:
-            category_list = ["牛仔裤", "打底裤", "休闲裤"]
+            category_list = ["打底裤", "休闲裤", "牛仔裤"]
         for category in category_list:
             print(" - " + category)
             df = self.pr_df(date=date, date_range=date_range, category=category,
