@@ -22,11 +22,10 @@ def request_df(sql_msg, date, variable="交易时间"):
     if not len(df_date):
         request_df(sql_msg, date-datetime.timedelta(1), variable)
     # 更新为7天数据
-    sql_final = "SELECT * FROM ERP_Sales_ledger WHERE \
-                DATE_FORMAT(`" + variable +"`, '%Y-%m-%d')> '" +\
-                datetime.datetime.strftime(date - datetime.timedelta(2),
+    sql_final = "SELECT * FROM ERP_Sales_ledger WHERE DATE_FORMAT(`" + variable +"`, '%Y-%m-%d')> '" +\
+                datetime.datetime.strftime(date - datetime.timedelta(1),
                                            "%Y-%m-%d") + "';"
-                # Test 7->2
+                # *** Test 7->1
     df = pd.read_sql_query(sql_final, conn)
     conn.close()
     return df, date
@@ -60,8 +59,7 @@ class daily_report(object):
         else:
             df = self._df
         variable_list = {"件数": "数量", "销售额": "实际结算", }
-        df_company = pd.pivot_table(df, index="店铺", columns="日期", \
-                                    values=(variable_list[variable]), \
+        df_company = pd.pivot_table(df, index="店铺", columns="日期", values=(variable_list[variable]), \
                                     aggfunc=sum, fill_value=0)
         df_company.sort_values(df_company.columns[-1], ascending=False)
         df_company["week_mean"] = df_company.mean(axis=1)
@@ -118,24 +116,39 @@ class daily_report(object):
 
     def manul_operation(self, form="store"):
         '''
-        刷单表
+        Parameter：
+        form:
+        - general: 刷单原表
+        - store: 店铺刷单表
         '''
         df_true = self.company_sheet(variable="件数", mode="true")
         df_manul = self.company_sheet(variable="件数", mode="manul")
-        df = pd.merge(df_true, df_manul, left_index=True, right_index=True, \
-                      suffixes=('_true', '_manul'))
+        df = pd.merge(df_true, df_manul, left_index=True, right_index=True, suffixes=('_true', '_manul'))
         if form == "general":
             return df
         if form == "store":
-            df.rename(columns={self.date+"_true": "true", \
-                               self.date+"_manul": "manul",})
-            print(df.columns())
+            df.rename(columns={self.date + "_true": "true", self.date + "_manul": "manul",}, inplace=True)
             df["manul_ratio"] = df["manul"]/df["true"]
             return df[["true", "manul", "manul_ratio"]]
         return "No such Dataframe."
 
-    def type_sales_report(self):
+    def type_sales_report(self, gt=0, num=0):
         '''
         款式销售情况
         '''
-        pass
+        df = self._df.loc[self._df["仓库"] != "虚拟仓库", :]
+        df.loc[df["数量"] > 5, "数量"] = 1
+        df_sort =df.pivot_table(index="货品编号", columns="店铺", values="数量", aggfunc="sum", fill_value=0)
+        sort_columns = df_sort.sum(axis=0).sort_values(ascending=False).index.tolist()
+        if gt:
+            sort_index = df_sort.sum(axis=1)[df_sort.sum(axis=1).values > gt].sort_values(ascending=False).index.tolist()
+        elif num:
+            sort_index = df_sort.sum(axis=1)[:num].sort_values(ascending=False).index.tolist()
+        else:
+            sort_index = df_sort.sum(axis=1)[:int(len(df_sort) / 10)].sort_values(ascending=False).index.tolist()
+        df_return = df.pivot_table(index="货品编号", columns="店铺", aggfunc="sum", values="数量", fill_value="")
+        return df_return.loc[sort_index, sort_columns]
+
+if __name__ == '__main__':
+    d = daily_report()
+    print(d.type_sales_report())
