@@ -34,7 +34,7 @@ class function():
             df = self.xiaobaods_pr()
         else:
             print(" * fun not be defined!")
-        if self.debug == 6 or self.debug == 8:
+        if self.debug in (0, 6, 8):
             return df
 
     def request_df(self, sql, sql_total=""):

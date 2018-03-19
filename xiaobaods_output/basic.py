@@ -423,7 +423,7 @@ class function():
             # 参数
             df["r2"] = df.loc[:, "lxy"]/df.loc[:, "lxx"] * -1
             # df.to_csv("C:\\Users\\Administrator\\Desktop\\{}_step1.csv".format(self.date), encoding="gbk")
-            df["br"] = np.square(df.loc[:, "lxy"]/(df.loc[:, "lxx"] * df.loc[:, "lyy"]) ** 0.5)
+            df["br"] = (df.loc[:, "lxy"]/(df.loc[:, "lxx"] * df.loc[:, "lyy"]) ** 0.5) ** 2
             df["weg"] = 1/(df.loc[:,"5"] ** self.alpha)
             df["score"] = (df.loc[:, "std"] * self.beta + df.loc[:, "br"] *\
                 self.gamma) * df.loc[:, "r2"] * self.delta * \
