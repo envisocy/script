@@ -32,7 +32,7 @@ def run():
     print(" *** Script For ERP_Sales_ledger Updating ERP_Sales_Together ***\n"+\
           " *** Ver_04 # 12-30-2017 @ Compliance with the GPL agreement ***")
     # 查找Sales_ledger中的时间范围
-    date_range = operation_pymysql("SELECT max(`交易时间`),min(`交易时间`) FROM ERP_Sales_ledger;")[0]
+    date_range = operation_pymysql("SELECT max(`交易时间`),min(`交易时间`) FROM ERP_Sales_Ledger;")[0]
     print(" *** Dynamic update range: %s - %s (Reverse) ***\n" % \
           (datetime.datetime.strftime(date_range[1].date(), "%Y-%m-%d"), \
            datetime.datetime.strftime(date_range[0].date(), "%Y-%m-%d")))
@@ -44,7 +44,7 @@ def run():
         print(" - [" + str(datetime.datetime.now() - time_s)[:12] + "] * " \
               + datetime.datetime.strftime(date, "%Y-%m-%d") + " *: ",end="")
         total_ledger = operation_pymysql("SELECT sum(`数量`) FROM \
-            ERP_Sales_ledger WHERE `交易时间` like '" + \
+            ERP_Sales_Ledger WHERE `交易时间` like '" + \
             datetime.datetime.strftime(date,"%Y-%m-%d") + "%' AND \
             `仓库`<>'虚拟仓库' AND `货品编号`<>'A';")[0][0]
         total_together = operation_pymysql("SELECT sum(`件数`) FROM \
@@ -61,7 +61,7 @@ def run():
                 I.`operator` as 组长,I.`team` as 项目组, sum(E.合计) - \
                 sum(E.分摊优惠) + sum(E.应收邮资) as 销售额, sum(`数量`) as 总件数, \
                 POW(sum(E.合计) - sum(E.分摊优惠) + sum(E.应收邮资), 1/1.6) as 销售指数, \
-                POW(sum(`数量`), 1/1.4) as 件数指数 FROM inside_stores AS I, ERP_Sales_ledger AS E \
+                POW(sum(`数量`), 1/1.4) as 件数指数 FROM inside_stores AS I, ERP_Sales_Ledger AS E \
                 WHERE I.`STORE`=E.`店铺` AND E.`交易时间` like '" + \
                 datetime.datetime.strftime(date,"%Y-%m-%d") + "%' and \
                 E.`货品编号`<>'A' and E.`仓库`<>'虚拟仓库' GROUP BY E.`店铺`;")
