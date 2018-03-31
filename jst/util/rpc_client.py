@@ -39,7 +39,7 @@ except ImportError:
 #   # 否则的话，常规的非奇门访问方式
 # self.post(url, data, url_params, action) 访问
 #   # url URL地址
-#   # data 非jst.状态下的POST
+#   # data 非jst.状态下的POST(对应非jst.状态下的查询参数)
 #   # url_params jst.状态下的GET包装
 #   # action 类似method?
 
@@ -49,6 +49,8 @@ class RpcClient:
         self.config = cfg        
 
     def call(self, action, parameters):
+
+        print("action: {}\nparameters: {}\n".format(action, parameters))
         
         system_params = self.get_system_params(action, params= parameters)
         
