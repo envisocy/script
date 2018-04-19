@@ -14,7 +14,7 @@ MODE = {
 	'inventory.query': ["modified_begin", "modified_end", "sku_ids"],   # 库存 - 库存查询
 	'inventory.count.query': ["modified_begin", "modified_end", "io_ids", "status"],    # 库存 - 库存盘点查询
 	'jst.orders.query': ["shop_id", "so_ids", "modified_begin", "modified_end", "status",],  # 订单 - 订单查询(奇门)
-	'jst.orders.source.query': ["shop_id", "modified_begin", "modified_end", "so_ids", "status",], # 订单 - 订单源数据查询(奇门)
+	# 'jst.orders.source.query': ["shop_id", "modified_begin", "modified_end", "so_ids", "status",], # 订单 - 订单源数据查询(奇门)
 	'order.action.query': ["modified_begin", "modified_end", "so_ids"], # 订单 - 订单操作日志查询
 	'logistic.query': ["shop_id", "modified_begin", "modified_end", "so_ids"], # 物流 - 发货信息查询
 	'purchase.query': ["modified_begin", "modified_end", "so_ids"], # 采购 - 采购单查询

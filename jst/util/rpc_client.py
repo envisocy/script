@@ -48,17 +48,19 @@ class RpcClient:
     def __init__(self, cfg):
         self.config = cfg        
 
-    def call(self, action, parameters):
+    def call(self, action, parameters, msg=False):
 
-        print("action: {}\nparameters: {}\n".format(action, parameters))
+        if msg:
+            print("action: {}\nparameters: {}\n".format(action, parameters))
         
         system_params = self.get_system_params(action, params= parameters)
         
         request_url = self.get_request_url(system_params)
 
-        print("Request Params: \nrequest_url: {}\nparameters: {}\nsystem_params: {}\naction: {}\n".format(
-            request_url, parameters, system_params, action
-        ))
+        if msg:
+            print("Request Params: \nrequest_url: {}\nparameters: {}\nsystem_params: {}\naction: {}\n".format(
+				request_url, parameters, system_params, action
+			))
         
         result = self.post(request_url, parameters, system_params, action)
 
