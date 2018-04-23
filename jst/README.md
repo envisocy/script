@@ -10,6 +10,7 @@
 ```python
 >>> import jst
 >>> jst.run("sku.query", False, page_size=10)
+
 {'code': 0,
  'data_count': 1038,
  'datas': [{'brand': None,
@@ -70,3 +71,9 @@
  'page_size': 2}
 ```
 
+
+参数说明：
+mode：方式，与erp接口名一致
+file_name：调用参数名字
+msg：是否打印参数，默认FALSE
+sandbox：是否沙盒环境，默认FALSE
