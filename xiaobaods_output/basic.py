@@ -162,6 +162,9 @@ class function():
             pass
         else:
             df = df.fillna(self.fillna)
+        if df.empty:
+            df = pd.DataFrame(columns=df.columns, index=[0])
+            df["total"] = 0
         return df
 
     def export(self, df, msg, sql, filename=""):
@@ -210,8 +213,7 @@ class function():
             sql_select_f = "SELECT CT.`主图缩略图`,CT.`热销排名`,CT.`商品信息`, \
             CT.`所属店铺`,CT.`支付子订单数`,CT.`交易增长幅度`, CT.`支付转化率指数`,\
             CT.`宝贝链接`,CT.`店铺链接`,CT.`查看详情`,CT.`同款货源`"
-            if self.variable not in ["热销排名", "支付子订单数", "交易增长幅度", \
-                                     "支付转化率指数"]:
+            if self.variable not in ["热销排名", "支付子订单数", "交易增长幅度", "支付转化率指数"]:
                 self.variable = "热销排名"
         elif self.table == "bc_attribute_granularity_visitor":
             sql_select_f = "SELECT CT.`主图缩略图`,CT.`热销排名`,CT.`商品信息`, \

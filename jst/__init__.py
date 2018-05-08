@@ -16,12 +16,12 @@ def run(mode="shops.query", msg=False, file_name="jst_private", sandbox=False, *
 		'taobao_secret': configure.echo(file_name)["config"]["taobao_secret"],
 	}
 	params = {
-        'shop_id': '10127848',
+        # 'shop_id': '10127848',    # 店铺ID
         'modified_begin': delta_now,
         'modified_end': now,
         'page_size': 10,
         'page_index': 1,
-        # 'so_ids': ['111902591572215654']
+        # 'so_ids': ['111902591572215654']  # 订单号
     }
 	if msg:
 		print("mode:<{}>\nfile_name:<{}>\nmsg:<{}>\nsandbox:<{}>\nkwargs:<{}>\n".format(mode, file_name, msg, sandbox, kwargs))
