@@ -6,7 +6,7 @@ import datetime
 now = datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S")
 delta_now = datetime.datetime.strftime(datetime.datetime.now() - datetime.timedelta(hours=1), "%Y-%m-%d %H:%M:%S")
 
-def run(mode="shops.query", msg=False, file_name="jst_private", sandbox=False, **kwargs):
+def run(mode="shops.query", msg=False, default=True, file_name="jst_private", sandbox=False, **kwargs):
 	env = {
 		'sandbox': sandbox, # 是否为沙盒环境
         'partner_id': configure.echo(file_name)["config"]["partner_id"],
@@ -15,14 +15,17 @@ def run(mode="shops.query", msg=False, file_name="jst_private", sandbox=False, *
 		'taobao_appkey': configure.echo(file_name)["config"]["taobao_appkey"],
 		'taobao_secret': configure.echo(file_name)["config"]["taobao_secret"],
 	}
-	params = {
-        # 'shop_id': '10127848',    # 店铺ID
-        'modified_begin': delta_now,
-        'modified_end': now,
-        'page_size': 10,
-        'page_index': 1,
-        # 'so_ids': ['111902591572215654']  # 订单号
-    }
+	if default == True:
+		params = {
+			# 'shop_id': '10127848',    # 店铺ID
+			'modified_begin': delta_now,
+			'modified_end': now,
+			'page_size': 10,
+			'page_index': 1,
+			# 'so_ids': ['111902591572215654']  # 订单号
+		}
+	else:
+		params = {}
 	if msg:
 		print("mode:<{}>\nfile_name:<{}>\nmsg:<{}>\nsandbox:<{}>\nkwargs:<{}>\n".format(mode, file_name, msg, sandbox, kwargs))
 	params.update(kwargs)
