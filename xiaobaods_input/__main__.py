@@ -12,6 +12,7 @@ try:
 except:
     argv = 9
 
+
 if argv == 1:
     xiaobaods_input.run(argv)
 elif argv == 8:

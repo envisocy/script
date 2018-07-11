@@ -1,13 +1,13 @@
 import sys
 
 if "win" in sys.platform:
-    DESKTOP = "C:/Users/Administrator/Desktop"
+    DESKTOP = "C:/Users/PJ/Desktop"
 elif "linux" in sys.platform:
     DESKTOP = "~/Downloads"
 
 SQL_LIST = ["localhost", "xiaobaods_w"]
 
-MODE3_PERMIT = ["牛仔裤", "休闲裤", "打底裤"]
+MODE3_PERMIT = ["牛仔裤", "休闲裤", "打底裤", "半身裙"]
 
 MODE4_PERMIT = {
     "牛仔裤": {

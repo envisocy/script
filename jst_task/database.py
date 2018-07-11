@@ -46,10 +46,14 @@ class JST_TASK():
 			# 核心部分储存日志
 			self.save_to_sql(sql, self.return_sql_sentence(data=log, table="ERP_task_log", is_log=True), db=db, is_log=True)
 			# 支表部分
-			for sublist in config[kwargs["mode"]].get("sublist", []):
+			for sublist in config[self.kwargs["mode"]].get("sublist", []):
 				data1 = []
 				for item in data:
-					if item.get(sublist):   # 排除可能为None的情况
+					for i in range(len(item.get(sublist, []))):
+						if item.get(sublist):   # 排除可能为None的情况
+							if item.get("o_id"):
+								data1_o_id = {"o_id": str(item.get("o_id"))}
+								item.get(sublist, [])[i].update(data1_o_id)
 						data1.extend(item.get(sublist, []))
 				data1_sql = self.return_sql_sentence(data1, table=self.kwargs["mode"] + "." + sublist)
 				log = self.save_to_sql(sql, data1_sql, len(data1), db=db, add_mode="." + sublist)
@@ -140,14 +144,14 @@ class JST_TASK():
 				return "Error!"
 			if config[self.kwargs["mode"]]["income"] == "magic":
 				if config[self.kwargs["mode"]]["has_next"]==True:
-					has_next = message["response"]["has_next"]
+					has_next = message["response"].get("has_next")
 				else:
 					has_next = False
 				if message["response"].get(config[self.kwargs["mode"]]["data"]):
 					data.extend(message["response"][config[self.kwargs["mode"]]["data"]])
 			elif config[self.kwargs["mode"]]["income"] == "common" and message.get(config[self.kwargs["mode"]]["data"]) != None:
 				if config[self.kwargs["mode"]]["has_next"]==True:
-					has_next = message["has_next"]
+					has_next = message.get("has_next")
 				else:
 					has_next = False
 				if message.get(config[self.kwargs["mode"]]["data"]):

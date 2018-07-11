@@ -9,7 +9,7 @@ try:
     argv = sys.argv[1]
     # argv = eval(argv)
 except:
-    argv = ""
+    argv = "jst.orders.query"
 
 print(" -->:", argv)
 

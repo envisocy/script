@@ -44,17 +44,18 @@ def save_to_mysql_mode1(mode, msg, items, sql_list=["localhost"]):
         table1 = {1: "brand", 3: "attribute"}
         table2 = {"热销商品榜": "sales", "流量商品榜": "visitor"}
         table = "bc_{0}_granularity_{1}".format(
-            table1[mode], table2[msg.get('head')])
+            table1[mode],table2[msg.get('head')])
     elif mode == 4:
         table = "bc_category_granularity"
     for item in items:
         sql_value = ""
-        sql_columns = str(tuple(item.keys())).replace("'", "`")
+        sql_columns = str(tuple(item.keys())).replace("'","`")
+        # sql_columns = str(tuple(item.keys()))
         for i in item:
             sql_value += "'" + item[i] + "',"
         sql_values = "(" + sql_value[:-1] + ")"
-        sql_insert += "INSERT INTO " + table + \
-            sql_columns + " VALUES " + sql_values + ";"
+        sql_insert += "insert into " + table + \
+            sql_columns + " values " + sql_values + ";"
     for sql in sql_list:
         conn = pymysql.connect(
             host=configure.echo(sql)["config"]["host"],
