@@ -39,6 +39,15 @@ class JST_TASK():
 		if data:
 			data0 = deepcopy(data)
 			for item in data0:
+				# 刷单判断
+				if self.kwargs["mode"]=="jst.orders.query" and item.get("question_type", "")=="特殊单":
+					ss_data = [{"o_id": item["o_id"], "create_date": datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S"),
+					            "pay_amount": item["pay_amount"], "order_date": item["order_date"],
+					            "pay_date": item["pay_date"], "remark": item.get("remark"),
+					            "question_desc": item.get("question_desc"), "question_type": item.get("question_type"),}]
+					ss_sentence = self.return_sql_sentence(data=ss_data, table="jst.orders.query.special_single")
+					self.save_to_sql(sql, ss_sentence, db=db, length=0)
+				# 排除特殊订单
 				for key in config[self.kwargs["mode"]].get("sublist", []):
 					del item[key]
 			data0_sql = self.return_sql_sentence(data=data0, table=self.kwargs["mode"])
@@ -62,6 +71,7 @@ class JST_TASK():
 			log = self.create_log(sql, "baoersqlerp")
 			log["result"] = "None"
 			self.save_to_sql(sql, self.return_sql_sentence(data=log, table="ERP_task_log", is_log=True), db=db, is_log=True)
+	
 	
 	def return_sql_sentence(self, data, table, is_log=False):
 		'''
@@ -173,3 +183,4 @@ class JST_TASK():
 			"length": -1,
 			"result": ""
 		}
+
