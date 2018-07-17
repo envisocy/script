@@ -14,11 +14,23 @@ def GetDesktopPath():
 DESKTOP_DIR = ""
 FILENAME = "html.txt"
 
+
+# 数据库列表from configure
+SQL_LIST = [
+	"localhost",
+]
+
+
 # 通行证
 PERMIT = {
-	"品牌粒度":{"category": ["女装/女士精品",]},
-	"行业粒度":{"attribute": ["牛仔裤", "休闲裤", "打底裤", "半身裙",],},
-	"属性粒度":{"attribute": {
+	"品牌粒度":{"category": ["女装/女士精品", ]},
+	"行业粒度":{"category": {"牛仔裤": None,
+	                        "休闲裤": None,
+	                        "打底裤": None,
+	                        "半身裙": None, },},
+	"属性粒度":{"category":{"牛仔裤", "打底裤",
+	},
+			  "attribute": {
 	"牛仔裤": {
 		'哈伦裤': "款式",
 		'阔脚裤': "款式",
@@ -53,6 +65,32 @@ PERMIT = {
 		'七分裤/九分裤': "裤长"}}},
 }
 
+
+# 数据库配置
+### shop_list
+shop_list_COLUMNS = [
+	"shopUrl", "shopName", "brand", "location", "company",
+]
+
+item_list_COLUMNS = [
+	"itemId", "category", "shopId", "createdDate", "bsUrl", "1688Url", "originalPrice",
+]
+
+item_info_COLUMNS = [
+	"itemId", "title", "mainPicUrl", "mainPicPhoneUrl", "originalPrice",
+]
+
+item_info_COLUMNS_check = [
+	"title", "mainPicUrl", "originalPrice", "sellingPrice",
+]
+
+write_brand_granularity_sales = [
+	"date", "brand", "rank", "itemId", "sale", "saleAmplitude", "percentConversion",
+]
+
+write_brand_granularity_visitor = [
+	"date", "brand", "rank", "itemId", "flowIndex", "searchPopularity", "paymentNumber",
+]
 
 # ------------------------------
 if not DESKTOP_DIR:
