@@ -50,7 +50,7 @@ def parse_content(mode, html):
         return {
             "mask": "商品店铺榜",
             "header": "品牌粒度",
-            "main": doc(".dtpicker-main-text .num").text().split()[1],
+            "main": doc(".dtpicker-main-text .num").text().split("（")[1].split("）")[0],
             "category": doc(".category-dropdown .btn.btn-dropdown").text().split(">")[-1],
             "brand": doc(".brand-dropdown .btn.btn-dropdown").text(),
             "device": doc(".device-dropdown .btn.btn-dropdown").text(),
@@ -58,7 +58,7 @@ def parse_content(mode, html):
             "head": doc(".active.ui-tab-head-item").text(),
             "quantity": doc(".config-selector .btn.btn-dropdown").text(),
             "curr": doc(".ui-pagination-curr").text(),
-            "total": doc(".ui-pagination-total").text().split()[1]
+            "total": doc(".ui-pagination-total").text()[1]
         }
     elif mode == 2:
         if "tmall" in doc(".screen-header .item-panel .img-wrapper a").attr("href"): # 天猫
@@ -82,7 +82,7 @@ def parse_content(mode, html):
         return {
             "mask": "商品店铺榜",
             "header": "商品详情",
-            "main": doc(".dtpicker-main-text .num").text().split()[1],
+            "main": doc(".dtpicker-main-text .num").text().split("（")[1].split("）")[0],
             "img": doc(".item-panel .img-wrapper img").attr("src"),
             "title": doc(".screen-header .item-panel").text().replace(" ",""),
             'href': (doc(".screen-header .item-panel .img-wrapper a").attr("href").split("?")[0] + "?id=" +\
@@ -96,20 +96,20 @@ doc(".screen-header .item-panel .img-wrapper a").attr("href").split("id=")[1])[:
         return {
             "mask": "商品店铺榜",
             "header": "行业粒度",
-            "main": doc(".dtpicker-main-text .num").text().split()[1],
+            "main": doc(".dtpicker-main-text .num").text().split("（")[1].split("）")[0],
             "category": doc(".category-dropdown .btn.btn-dropdown").text().split(">")[-1],
             "device": doc(".device-dropdown .btn.btn-dropdown").text(),
             "seller": doc(".seller-dropdown .btn.btn-dropdown").text(),
             "head": doc(".active.ui-tab-head-item").text(),
             "quantity": doc(".config-selector .btn.btn-dropdown").text(),
             "curr": doc(".ui-pagination-curr").text(),
-            "total": doc(".ui-pagination-total").text().split()[1]
+            "total": doc(".ui-pagination-total").text()[1]
         }
     elif mode == 4:
         return {
             "mask": "商品店铺榜",
             "header": "属性粒度",
-            "main": doc(".dtpicker-main-text .num").text().split()[1],
+            "main": doc(".dtpicker-main-text .num").text().split("（")[1].split("）")[0],
             "category": doc(".category-dropdown .btn.btn-dropdown").text().split(">")[-1],
             "attribute": doc(".flex-content").text(),
             "device": doc(".device-dropdown .btn.btn-dropdown").text(),
@@ -117,7 +117,7 @@ doc(".screen-header .item-panel .img-wrapper a").attr("href").split("id=")[1])[:
             "head": doc(".active.ui-tab-head-item").text(),
             "quantity": doc(".config-selector .btn.btn-dropdown").text(),
             "curr": doc(".ui-pagination-curr").text(),
-            "total": doc(".ui-pagination-total").text().split()[1]
+            "total": doc(".ui-pagination-total").text()[1]
         }
     return None
 

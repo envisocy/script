@@ -11,8 +11,8 @@ import xiaobaods_input.Business_adviser_parser.parse_page as parse_page
 import xiaobaods_input.Business_adviser_parser.save_data as save_data
 import xiaobaods_input.Business_adviser_parser.detector as detector
 from xiaobaods_input.Business_adviser_parser.config import *
-VER = "Ver_08"
-VER_DATE = "2017-12-13"
+VER = "Ver_11"
+VER_DATE = "2018-07-20"
 
 
 def main():

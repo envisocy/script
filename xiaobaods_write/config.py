@@ -17,6 +17,7 @@ FILENAME = "html.txt"
 
 # 数据库列表from configure
 SQL_LIST = [
+	"xiaobaods_w",
 	"localhost",
 ]
 
@@ -67,13 +68,37 @@ PERMIT = {
 
 
 # 数据库配置
+databases_config = {
+	"行业粒度":{
+		"热销商品榜":{"table":"bc_attribute_granularity_sales",
+		            "item_list":{"date", "category", "rank", "itemId", "title", "shopName", "shopUrl",
+		                         "sale", "saleAmplitude", "percentConversion", "mainPicUrl", "originalPrice",
+		                         "bsUrl", "1688Url",},},
+		"流量商品榜":{"table":"bc_attribute_granularity_visitor",
+		            "item_list":{"date", "category", "rank", "itemId", "title", "shopName", "shopUrl",
+		                         "flowIndex", "searchPopularity", "paymentNumber", "mainPicUrl", "originalPrice",
+		                         "bsUrl", "1688Url",},},
+	},
+	"品牌粒度":{
+		"热销商品榜":{"table":"bc_brand_granularity_sales",
+		            "item_list":{"date", "brand", "rank", "itemId", "title", "shopName", "shopUrl",
+		                         "sale", "saleAmplitude", "percentConversion", "mainPicUrl", "originalPrice",
+		                         "bsUrl",},},
+		"流量商品榜":{"table":"bc_brand_granularity_visitor",
+		            "item_list":{"date", "brand", "rank", "itemId", "title", "shopName", "shopUrl",
+		                         "flowIndex", "searchPopularity", "paymentNumber", "mainPicUrl", "originalPrice",
+		                         "bsUrl",},},
+	},
+}
+
+
 ### shop_list
-shop_list_COLUMNS = [
-	"shopUrl", "shopName", "brand", "location", "company",
-]
+# shop_list_COLUMNS = [
+# 	"shopUrl", "shopName", "brand", "location", "company",
+# ]
 
 item_list_COLUMNS = [
-	"itemId", "category", "shopId", "createdDate", "bsUrl", "1688Url", "originalPrice",
+	"itemId", "category", "createdDate", "bsUrl", "1688Url", "originalPrice", "shopUrl", "shopName",
 ]
 
 item_info_COLUMNS = [
@@ -90,6 +115,14 @@ write_brand_granularity_sales = [
 
 write_brand_granularity_visitor = [
 	"date", "brand", "rank", "itemId", "flowIndex", "searchPopularity", "paymentNumber",
+]
+
+write_attribute_granularity_sales = [
+	"date", "category", "rank", "itemId", "sale", "saleAmplitude", "percentConversion",
+]
+
+write_attribute_granularity_visitor = [
+	"date", "category", "rank", "itemId", "flowIndex", "searchPopularity", "paymentNumber",
 ]
 
 # ------------------------------

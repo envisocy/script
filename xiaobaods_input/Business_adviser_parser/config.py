@@ -1,7 +1,16 @@
 import sys
+import os
+
+def GetDesktopPath():
+    return os.path.join(os.path.expanduser("~"), 'Desktop')
+
+DESKTOP_DIR = ""
+
+if not DESKTOP_DIR:
+    DESKTOP_DIR = GetDesktopPath()
 
 if "win" in sys.platform:
-    DESKTOP = "C:/Users/PJ/Desktop"
+    DESKTOP = DESKTOP_DIR
 elif "linux" in sys.platform:
     DESKTOP = "~/Downloads"
 

@@ -5,6 +5,8 @@ from datetime import datetime
 from copy import deepcopy
 import time
 
+from jst_task.config import *
+
 config = {
     "shops.query": {"income": "common", "data": "shops" ,"has_next": False, "sleep": 0.1}, # 店铺查询
     "sku.query": {"income": "common", "data": "datas" ,"has_next": True, "sleep": 0.1}, # 普通商品查询
@@ -44,6 +46,7 @@ class JST_TASK():
 					ss_data = [{"o_id": item["o_id"], "create_date": datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S"),
 					            "pay_amount": item["pay_amount"], "order_date": item["order_date"],
 					            "pay_date": item["pay_date"], "remark": item.get("remark"),
+					            "shop_name": item["shop_name"],
 					            "question_desc": item.get("question_desc"), "question_type": item.get("question_type"),}]
 					ss_sentence = self.return_sql_sentence(data=ss_data, table="jst.orders.query.special_single")
 					self.save_to_sql(sql, ss_sentence, db=db, length=0)
@@ -80,6 +83,10 @@ class JST_TASK():
 		if not is_log:
 			sql_sentence = ""
 			for item in data:
+				for rule in FIELD_RULE:     # 增加长度判定
+					if item.get(rule):
+						if len(str(item.get(rule))) > FIELD_RULE[rule]:
+							item[rule] = str(item[rule])[:FIELD_RULE[rule]]
 				keys_sentence = str([i for i in item.keys()])[1:-1].replace("'","`")
 				values_sentence = "({}),".format(str([str(i).replace("'","").replace('"','') for i in
 													  item.values()])[1:-1].replace("'",'"'))
@@ -118,9 +125,9 @@ class JST_TASK():
 			print(e)
 			if not is_log:
 				log["result"] = str(e)[:254]
-			conn.rollback()
-		cur.close()
-		conn.close()
+		finally:
+			cur.close()
+			conn.close()
 		if not is_log:
 			return log
 		

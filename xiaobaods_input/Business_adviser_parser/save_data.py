@@ -15,7 +15,7 @@ def validation_exists2(id, date, sql_list=["localhost"]):
             user=configure.echo(sql)["config"]["user"],
             passwd=configure.echo(sql)["config"]["passwd"],
             charset=configure.echo(sql)["config"]["charset"],
-            db="baoersqlbasic")
+            db="baoersqlbs")
     cursor = conn.cursor()
     result = cursor.execute("SELECT * FROM bc_commodity_items WHERE `日期`='" + date + "' and `id`='" + id + "';")
     conn.commit()
@@ -63,7 +63,7 @@ def save_to_mysql_mode1(mode, msg, items, sql_list=["localhost"]):
             user=configure.echo(sql)["config"]["user"],
             passwd=configure.echo(sql)["config"]["passwd"],
             charset=configure.echo(sql)["config"]["charset"],
-            db="baoersqlbasic")
+            db="baoersqlbs")
         try:
             cursor = conn.cursor()
             cursor.execute(sql_insert)
@@ -94,7 +94,7 @@ def save_to_mysql_mode2(msg, items, table, sql_list=["localhost"]):
             user=configure.echo(sql)["config"]["user"],
             passwd=configure.echo(sql)["config"]["passwd"],
             charset=configure.echo(sql)["config"]["charset"],
-            db="baoersqlbasic")
+            db="baoersqlbs")
         try:
             cursor = conn.cursor()
             cursor.execute(sql_insert)

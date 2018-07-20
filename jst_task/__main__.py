@@ -2,6 +2,7 @@ import datetime
 
 from jst_task.database import JST_TASK
 
+
 task = JST_TASK()
 
 try:

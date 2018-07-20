@@ -24,8 +24,9 @@ class Doc():
 				html = f.read()
 		pattern = re.compile('(<html.*?</html>)', re.S)
 		htmls = re.findall(pattern, html)
-		self.msg = " *** 载入文档并初始化信息 ***\n * From: {}{}{}\n * Details: {} bytes ( {} Blocks )\n ***" \
-		           " *** *** *** *** *** ***\n".format(DESKTOP_DIR, os.sep, filename, len(html), len(htmls))
+		self.msg = " *** 载入文档并初始化信息 ***\n * From: {}{}{}\n * Details: {} bytes ( {} Blocks )\n" \
+		           " * A new processing engine: Ailurus fulgens\n *** *** *** *** *** *** ***\n".format(DESKTOP_DIR,
+		                                                                    os.sep, filename, len(html), len(htmls))
 		self.htmls = htmls
 
 	def run(self):
@@ -162,7 +163,7 @@ class Doc():
 	def prompt_message(self):
 		if self.mode == "品牌粒度":
 			if self.detail == 0:
-				print("- 〔", self.info.get('header'), "〕日期：", self.info.get('brand'), "@", self.info.get('main'),
+				print("- 〔", self.mode, self.info.get('head'), "〕日期：", self.info.get('brand'), "@", self.info.get('main'),
 				      " Page: ", self.info.get("curr"), "/", self.info.get("total"))
 			elif self.detail == 1:
 				print("- 目录：【", self.info.get('mask'), "-", self.info.get('header'), "】")
@@ -179,7 +180,7 @@ class Doc():
 		# 		print("- 商品ID：〔", self.info.get('id'), "〕", self.info.get('shopname'), ": ", self.info.get("brand"))
 		elif self.mode == "行业粒度":
 			if self.detail == 0:
-				print("- 〔", self.info.get('head'), "〕类目：", self.info.get('category'), "@", self.info.get('main'),
+				print("- 〔", self.mode, self.info.get('head'), "〕类目：", self.info.get('category'), "@", self.info.get('main'),
 				      " Page: ", self.info.get("curr"), "/", self.info.get("total"))
 			elif self.detail == 1:
 				print("- 目录：【", self.info.get('mask'), "-", self.info.get('header'), "】")
@@ -189,7 +190,7 @@ class Doc():
 				      self.info.get("curr"), "/", self.info.get("total"))
 		elif self.mode == "属性粒度":
 			if self.detail == 0:
-				print("- 〔", self.info.get('head'), "〕类目：", self.info.get('category'), "-", self.info.get('attribute'),
+				print("- 〔", self.mode, self.info.get('head'), "〕类目：", self.info.get('category'), "-", self.info.get('attribute'),
 				      "@", self.info.get('main'), " Page: ", self.info.get("curr"), "/", self.info.get("total"))
 			elif self.detail == 1:
 				print("- 目录：【", self.info.get('mask'), "-", self.info.get('header'), "】")
@@ -218,12 +219,13 @@ class Doc():
 						"saleAmplitude": amplitude,
 						"percentConversion": item("td:nth_child(6)").text().replace(",", "")[:6],
 						"category": self.info["category"],
-						"title": item("td:nth_child(2)").text()[:100].split("\n")[0],
-						"originalPrice": item("td:nth_child(2)").text()[:100].split("：")[1],
-						"shopName": item("td:nth_child(3)").text()[:60],
-						"shopUrl": "http:" + item("td:nth_child(3) a").attr("href").split("?")[0][:60],
-						"mainPicUrl": item("td:nth_child(2) a img").attr("src")[:160].split("_48")[0],
-						"bsUrl": "https://sycm.taobao.com/mq/industry/rank/brand.htm?spm=a21ag.7749237.0.0.7d79124647cLZN" + item("td.op a").attr("href")[:400]}
+						"title": item("td:nth_child(2)").text().replace("'","`")[:100].split("\n")[0],
+						"originalPrice": item("td:nth_child(2)").text()[:100].split("：")[-1].replace(",",""),
+						"shopName": item("td:nth_child(3)").text().replace("'","`")[:60],
+						"shopUrl": item("td:nth_child(3) a").attr("href").split("?")[0][:60],
+						"mainPicUrl": item("td:nth_child(2) a img").attr("src").split(".jpg")[0].
+							              split("uploaded/")[1][:100],
+						"bsUrl": item("td.op a").attr("href")[:255],}
 		elif self.mode=="品牌粒度" and self.info.get("head")=="流量商品榜":
 			for item in doc(".ui-tab-contents tbody")("tr").items():
 				if item("td:nth_child(3) a").attr("href"):  # 排除可能存在的店铺被删除的情况
@@ -235,118 +237,85 @@ class Doc():
 						"flowIndex": item("td:nth_child(4)").text().replace(",", "")[:10],
 						"searchPopularity": item("td:nth_child(5)").text().replace(",", ""),
 						"paymentNumber": item("td:nth_child(6)").text().replace(",", "")[:6],
-						"title": item("td:nth_child(2)").text()[:100].split("\n")[0],
-						"originalPrice": item("td:nth_child(2)").text()[:100].split("：")[1],
-						"shopName": item("td:nth_child(3)").text()[:60],
-						"shopUrl": "http:" + item("td:nth_child(3) a").attr("href").split("?")[0][:60],
-						"mainPicUrl": item("td:nth_child(2) a img").attr("src")[:160].split("_48")[0],
-						"bsUrl": "https://sycm.taobao.com/mq/industry/rank/brand.htm?spm=a21ag.7749237.0.0.7d79124647cLZN" + item("td.op a").attr("href")[:400]}
+						"title": item("td:nth_child(2)").text().replace("'","`")[:100].split("\n")[0],
+						"originalPrice": item("td:nth_child(2)").text().split("：")[-1].replace(",",""),
+						"shopName": item("td:nth_child(3)").text().replace("'","`")[:60],
+						"shopUrl": item("td:nth_child(3) a").attr("href").split("?")[0][:60],
+						"mainPicUrl": item("td:nth_child(2) a img").attr("src").split(".jpg")[0].
+							              split("uploaded/")[1][:100],
+						"bsUrl": item("td.op a").attr("href")[:255], }
 		elif self.mode=="行业粒度" and self.info.get("head")=="热销商品榜":
-			print("行业粒度-热销商品榜")
+			for item in doc(".ui-tab-contents tbody")("tr").items():
+				if item("td:nth_child(5)").text() != ">99999%":
+					amplitude = str(float('%.4f' % (float(item("td:nth_child(5)").text().replace("%", "")) / 100)))
+				else:
+					amplitude = "999.9999"
+				if item("td:nth_child(5)")(
+						"span:nth_child(1)").attr("class") == "down":
+					amplitude = "-" + amplitude
+				if item("td:nth_child(3) a").attr("href"):  # 排除可能存在的店铺被删除的情况
+					yield {
+						"date": self.info['main'],
+						"category": self.info["category"],
+						"rank": item("td:first_child").text()[:3],
+						"itemId": item("td:nth_child(2) a").attr("href").split("id=")[1][:60],
+						"sale": item("td:nth_child(4)").text().replace(",", "")[:10],
+						"saleAmplitude": amplitude,
+						"percentConversion": item("td:nth_child(6)").text().replace(",", "")[:6],
+						"title": item("td:nth_child(2)").text().replace("'","`")[:100].split("\n")[0],
+						"originalPrice": item("td:nth_child(2)").text()[:100].split("：")[-1].replace(",",""),
+						"shopName": item("td:nth_child(3)").text().replace("'","`")[:60],
+						"shopUrl": item("td:nth_child(3) a").attr("href").split("?")[0][:60],
+						"mainPicUrl": item("td:nth_child(2) a img").attr("src").split(".jpg")[0].
+							              split("uploaded/")[1][:100],
+						"bsUrl": item("td.op a").attr("href")[:255],
+						"1688Url": item("td.op div a").attr("href").split("fromOfferId=")[-1].split("#topoffer")[0][:60],}
 		elif self.mode=="行业粒度" and self.info.get("head")=="流量商品榜":
-			print("行业粒度-流量商品榜")
+			for item in doc(".ui-tab-contents tbody")("tr").items():
+				if item("td:nth_child(3) a").attr("href"):  # 排除可能存在的店铺被删除的情况
+					yield {
+						"date": self.info['main'],
+						"category": self.info["category"],
+						"rank": item("td:first_child").text()[:3],
+						"itemId": item("td:nth_child(2) a").attr("href").split("id=")[1][:60],
+						"flowIndex": item("td:nth_child(4)").text().replace(",", "")[:10],
+						"searchPopularity": item("td:nth_child(5)").text().replace(",", ""),
+						"paymentNumber": item("td:nth_child(6)").text().replace(",", "")[:6],
+						"title": item("td:nth_child(2)").text().replace("'","`")[:100].split("\n")[0],
+						"originalPrice": item("td:nth_child(2)").text().split("：")[-1].replace(",",""),
+						"shopName": item("td:nth_child(3)").text().replace("'","`")[:60],
+						"shopUrl": item("td:nth_child(3) a").attr("href").split("?")[0][:60],
+						"mainPicUrl": item("td:nth_child(2) a img").attr("src").split(".jpg")[0].
+							              split("uploaded/")[1][:100],
+						"bsUrl": item("td.op a").attr("href")[:255],
+						"1688Url": item("td.op div a").attr("href").split("fromOfferId=")[-1].split("#topoffer")[0][:60],}
 		elif self.mode=="属性粒度":
 			print("属性粒度")
 			
 		
 	def save_sql(self, result):
+		centence = ""
+		for item in result:
+			centence += self.item_sql(item)
 		for sql in SQL_LIST:
-			for item in result:
-				self.shop_sql(sql, item)
-				self.item_sql(sql, item)
-				self.write_sql(sql, item)
-	
-	def shop_sql(self, sql, item):
-		# select
-		sql_centence = "SELECT `shopId` FROM shop_list WHERE brand='" + item['brand'] + "';"
-		data = self.sql_answer(sql, sql_centence)
-		if not data:
-			sql_dict = self.shop_request(item["shopUrl"])
-			sql_dict.update({i[0]:i[1] for i in item.items() if i[0] in shop_list_COLUMNS})
-			sql_dict.update({"createdDate": item["date"]})
-			key_centence = ""
-			value_centence = ""
-			for key, value in sql_dict.items():
-				key_centence += "`" + str(key) + "`" + ","
-				value_centence += "'" + str(value) + "'" + ","
-			self.sql_answer(sql, "INSERT INTO shop_list({}) VALUES ({});".format(key_centence[:-1], value_centence[:-1]))
-			item.update({"shopId": sql_dict["shopId"]})
-		else:
-			item.update({"shopId": data[0][0]})
+			data = self.sql_answer(sql, centence)
+			print("   @ [{}]:\t{}".format(sql, data))
 			
 	
-	def item_sql(self, sql, item):
-		### item_list
-		sql_centence = "SELECT `itemId` FROM item_list WHERE itemId='" + item['itemId'] + "';"
-		data = self.sql_answer(sql, sql_centence)
-		if not data:
-			sql_dict={}
-			sql_dict.update({i[0]:i[1] for i in item.items() if i[0] in item_list_COLUMNS})
-			sql_dict.update({"createdDate": item["date"]})
-			if item.get("category")=="女装/女士精品":     # 品牌录入时不更新数据
-				sql_dict.pop("category")
-			key_centence = ""
-			value_centence = ""
-			for key, value in sql_dict.items():
-				key_centence += "`" + str(key) + "`" + ","
-				value_centence += "'" + str(value) + "'" + ","
-			self.sql_answer(sql, "INSERT INTO item_list({}) VALUES ({});".format(key_centence[:-1], value_centence[:-1]))
-		else:
-			pass
-		### item_info
-		sql_centence = "SELECT `" + "`,`".join(item_info_COLUMNS_check) + "` FROM item_info WHERE itemId='" + \
-		               item['itemId'] + "';"
-		if self.sql_answer(sql, sql_centence):
-			data = self.sql_answer(sql, sql_centence)[0]
-		else:
-			data = None
-		data_item = tuple(item.get(i, None) for i in item_info_COLUMNS_check)
-		if data != data_item:
-			# insert
-			sql_dict = {i[0]:i[1] for i in item.items() if i[0] in item_info_COLUMNS}
-			sql_dict.update({"createdDate": item["date"]})
-			key_centence = ""
-			value_centence = ""
-			for key, value in sql_dict.items():
-				key_centence += "`" + str(key) + "`" + ","
-				value_centence += "'" + str(value) + "'" + ","
-			centence = 	"INSERT INTO item_info({}) VALUES ({});".format(key_centence[:-1], value_centence[:-1])
-			self.sql_answer(sql, centence)
+	def item_sql(self, item):
+		sql_dict={}
+		sql_dict.update({i[0]:i[1] for i in item.items() if i[0] in
+		                 databases_config[self.mode][self.info["head"]]["item_list"]})
+		# sql_dict.update({"createdDate": item["date"]})
+		key_centence = ""
+		value_centence = ""
+		for key, value in sql_dict.items():
+			key_centence += "`" + str(key) + "`" + ","
+			value_centence += "'" + str(value) + "'" + ","
+		centence = "INSERT INTO `{}`({}) VALUES({});".format(databases_config[self.mode][self.info["head"]]["table"],
+		                                                     key_centence[:-1], value_centence[:-1])
+		return centence
 		
-		
-	def shop_request(self, url):
-		response = requests.get(url)
-		doc = pq(response.text)
-		return {
-			"location": doc("#header .extra-info .locus").text().split("\n")[1],
-			"shopImg": doc("meta[property='og:image']").attr("content"),
-			"shopId": {str(item.split("=")[0]):str(item.split("=")[1]) for item in
-			           doc("meta[name='microscope-data']").attr("content").split(";")}["shopId"],
-			"shopDesc": doc("meta[name='description']").attr("content").split("。")[0],
-		}
-	
-	
-	def write_sql(self, sql, item):
-		if self.mode=="品牌粒度" and self.info.get("head")=="热销商品榜":
-			sql_dict = ({i[0]:i[1] for i in item.items() if i[0] in write_brand_granularity_sales})
-			key_centence = ""
-			value_centence = ""
-			for key, value in sql_dict.items():
-				key_centence += "`" + str(key) + "`" + ","
-				value_centence += "'" + str(value) + "'" + ","
-			self.sql_answer(sql, "INSERT INTO bc_brand_granularity_sales({}) VALUES ({});".
-			                format(key_centence[:-1], value_centence[:-1]))
-		elif self.mode=="品牌粒度" and self.info.get("head")=="流量商品榜":
-			sql_dict = ({i[0]:i[1] for i in item.items() if i[0] in write_brand_granularity_visitor})
-			key_centence = ""
-			value_centence = ""
-			for key, value in sql_dict.items():
-				key_centence += "`" + str(key) + "`" + ","
-				value_centence += "'" + str(value) + "'" + ","
-			self.sql_answer(sql, "INSERT INTO bc_brand_granularity_visitor({}) VALUES ({});".
-			                format(key_centence[:-1], value_centence[:-1]))
-		
-	
 	def sql_answer(self, sql, sql_centence):
 		# 通用型mysql数据反馈，sql系数，sql语句
 		data = ""
@@ -362,9 +331,11 @@ class Doc():
 			cursor.execute(sql_centence)
 			conn.commit()
 			data = cursor.fetchall()
+			if not data:
+				data = "Write completion!"    # 返回一个标记
 		except Exception as e:
 			conn.rollback()
-			print(" *" + str(e))
+			data = str(e)
 		finally:
 			cursor.close()
 			conn.close()
