@@ -4,10 +4,8 @@
 __author__ = 'envisocy'
 __date__ = '2018/7/11 10:35'
 
-import os
 import re
 from pyquery import PyQuery as pq
-import requests
 import configure
 import pymysql
 
@@ -28,6 +26,7 @@ class Doc():
 		           " * A new processing engine: Ailurus fulgens\n *** *** *** *** *** *** ***\n".format(DESKTOP_DIR,
 		                                                                    os.sep, filename, len(html), len(htmls))
 		self.htmls = htmls
+		self.brand_list = []    # 为结束品牌检查提供参考
 
 	def run(self):
 		print(self.msg)
@@ -39,6 +38,7 @@ class Doc():
 				continue
 			result = self.parse_html(html)
 			self.save_sql(result)
+		self.check_sql()
 	
 	def parse(self, html):
 		self.error = ""     # 初始化错误信息
@@ -74,6 +74,9 @@ class Doc():
 				"curr": doc(".ui-pagination-curr").text(),
 				"total": doc(".ui-pagination-total").text(),
 			}
+			if self.info["brand"] == "CHNPLUM/...":
+				self.info["brand"] = "CHNPLUM/华梅"
+			self.brand_list.append(self.info["brand"])  # 为最终检查提供依据
 		# elif self.mode == "商品详情":
 		# 	if "tmall" in doc(".screen-header .item-panel .img-wrapper a").attr("href"): # 天猫
 		# 		try:
@@ -147,12 +150,10 @@ class Doc():
 		else:
 			self.info["total"] = self.info["total"][1]  # "共5页" 取页数数字
 		# validation_message
-		if self.info.get("category"):
-			if self.info.get("category") not in PERMIT[self.mode].get("category", []):
+		if self.mode in ["品牌粒度", "行业粒度"] and self.info.get("category") not in PERMIT[self.mode]:
 				self.error = " !!! 类目选择错误或超出范围，请检查后再试！此数据被忽略！"
-		if self.info.get("attribute"):
-			if self.info.get("attribute", "") not in PERMIT[self.mode].get("attribute", {}).get(self.info.get("category"), ""):
-				self.error = " !!! 属性选择错误或超出范围，请检查后再试！此数据被忽略！"
+		if self.mode=="属性粒度" and self.info.get("attribute") not in PERMIT_attribute[self.info["category"]]:
+			self.error = " !!! 属性选择错误或超出范围，请检查后再试！此数据被忽略！"
 		if self.info.get("device", "所有终端") != "所有终端":
 			self.error = " !!! 请选择数据源为“所有终端”，此数据被忽略！"
 		if self.info.get("seller", "全网") != "全网":
@@ -278,8 +279,7 @@ class Doc():
 						"category": self.info["category"],
 						"rank": item("td:first_child").text()[:3],
 						"itemId": item("td:nth_child(2) a").attr("href").split("id=")[1][:60],
-						"flowIndex": item("td:nth_child(4)").text().replace(",", "")[:10],
-						"searchPopularity": item("td:nth_child(5)").text().replace(",", ""),
+						"sale": item("td:nth_child(4)").text().replace(",", "")[:10],
 						"paymentNumber": item("td:nth_child(6)").text().replace(",", "")[:6],
 						"title": item("td:nth_child(2)").text().replace("'","`")[:100].split("\n")[0],
 						"originalPrice": item("td:nth_child(2)").text().split("：")[-1].replace(",",""),
@@ -290,7 +290,25 @@ class Doc():
 						"bsUrl": item("td.op a").attr("href")[:255],
 						"1688Url": item("td.op div a").attr("href").split("fromOfferId=")[-1].split("#topoffer")[0][:60],}
 		elif self.mode=="属性粒度":
-			print("属性粒度")
+			for item in doc(".ui-tab-contents tbody")("tr").items():
+				if item("td:nth_child(3) a").attr("href"):  # 排除可能存在的店铺被删除的情况
+					yield {
+						"date": self.info['main'],
+						# "category": self.info["category"],
+						# "type": PERMIT_attribute[self.info["category"]][self.info["attribute"]],
+						"attribute": self.info['attribute'],
+						"rank": item("td:first_child").text()[:3],
+						"itemId": item("td:nth_child(2) a").attr("href").split("id=")[1][:60],
+						"sale": item("td:nth_child(4)").text().replace(",", "")[:10],
+						"searchPopularity": item("td:nth_child(5)").text().replace(",", ""),
+						"paymentNumber": item("td:nth_child(6)").text().replace(",", "")[:6],
+						"title": item("td:nth_child(2)").text().replace("'","`")[:100].split("\n")[0],
+						"originalPrice": item("td:nth_child(2)").text().split("：")[-1].replace(",",""),
+						"shopName": item("td:nth_child(3)").text().replace("'","`")[:60],
+						"shopUrl": item("td:nth_child(3) a").attr("href").split("?")[0][:60],
+						"mainPicUrl": item("td:nth_child(2) a img").attr("src").split(".jpg")[0].
+							              split("uploaded/")[1][:100],
+						"bsUrl": item("td.op a").attr("href")[:255], }
 			
 		
 	def save_sql(self, result):
@@ -312,8 +330,11 @@ class Doc():
 		for key, value in sql_dict.items():
 			key_centence += "`" + str(key) + "`" + ","
 			value_centence += "'" + str(value) + "'" + ","
-		centence = "INSERT INTO `{}`({}) VALUES({});".format(databases_config[self.mode][self.info["head"]]["table"],
-		                                                     key_centence[:-1], value_centence[:-1])
+		table = databases_config[self.mode][self.info["head"]]["table"]
+		if table == "bc_category_granularity":
+			table = "bc_category_{}_{}".format(COMPARE_category[self.info["category"]],
+			                COMPARE_type[PERMIT_attribute[self.info["category"]][self.info["attribute"]]])
+		centence = "INSERT INTO `{}`({}) VALUES({});".format(table, key_centence[:-1], value_centence[:-1])
 		return centence
 		
 	def sql_answer(self, sql, sql_centence):
@@ -340,3 +361,55 @@ class Doc():
 			cursor.close()
 			conn.close()
 		return data
+	
+	def check_sql(self):
+		print("\n")
+		if self.mode in ["行业粒度", "品牌粒度"]:
+			for sql in SQL_LIST:
+				# “行业粒度”/“品牌粒度”
+				print("#" * 70)
+				print(" #Check Switch# Mode: {} - Date: {} @ User: {}".format(self.mode, self.info["main"], sql))
+				print("#" * 70)
+				if self.mode == "行业粒度":
+					table_list = ["bc_attribute_granularity_sales", "bc_attribute_granularity_visitor"]
+					item_list = PERMIT["行业粒度"]
+					item_name = "category"
+				elif self.mode == "品牌粒度":
+					table_list = ["bc_brand_granularity_sales", "bc_brand_granularity_visitor"]
+					item_list = set(self.brand_list + BRAND_LIST)
+					item_name = "brand"
+				for item in item_list:
+					for table in table_list:
+						centence = "SELECT COUNT(*),MAX(`rank`) FROM {} WHERE `date`='{}' AND `{}`='{}';".format(table,
+						                                                        self.info["main"], item_name, item)
+						data = self.sql_answer(sql, centence)
+						if int(data[0][0]) == 0:
+							mark = "**"
+						elif int(data[0][0]) < int(data[0][1]):
+							mark = "!!!"
+						else:
+							mark = "v"
+						print("   & {} & {} :\t\t{}\t {}".format(table.center(32), item[-7:].ljust(7),
+						                                (str(data[0][0])+"/"+str(data[0][1])).rjust(7), mark))
+		elif self.mode == "属性粒度":
+			for sql in SQL_LIST:
+				# 属性粒度
+				print("#" * 70)
+				print(" #Check Switch# Mode: {} - Date: {} @ User: {}".format(self.mode, self.info["main"], sql))
+				print("#" * 70)
+				for category in PERMIT["属性粒度"]:
+					for style in PERMIT["属性粒度"][category]:
+						for attribute in PERMIT["属性粒度"][category][style]:
+							table = "bc_category_{}_{}".format(COMPARE_category[category], COMPARE_type[style])
+							centence = "SELECT COUNT(*),MAX(`rank`) FROM {} WHERE `date`='{}' AND `attribute`='{}';".format(table,
+						                                                                self.info["main"], attribute)
+							data = self.sql_answer(sql, centence)
+							if int(data[0][0]) == 0:
+								mark = "**"
+							elif int(data[0][0]) < int(data[0][1]):
+								mark = "!!!"
+							else:
+								mark = "v"
+							print("   & {} & {}:\t{}\t {}".format(table.center(26),(category+"-"+style+"-"+attribute).
+							        center(14), (str(data[0][0])+"/"+str(data[0][1])).rjust(7), mark))
+				
