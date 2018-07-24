@@ -23,7 +23,7 @@ class Doc():
 		pattern = re.compile('(<html.*?</html>)', re.S)
 		htmls = re.findall(pattern, html)
 		self.msg = " *** 载入文档并初始化信息 ***\n * From: {}{}{}\n * Details: {} bytes ( {} Blocks )\n" \
-		           " * A new processing engine: Ailurus fulgens\n *** *** *** *** *** *** ***\n".format(DESKTOP_DIR,
+		           " * A new processing engine: Ailurus fulgens X\n *** *** *** *** *** *** ***\n".format(DESKTOP_DIR,
 		                                                                    os.sep, filename, len(html), len(htmls))
 		self.htmls = htmls
 		self.brand_list = []    # 为结束品牌检查提供参考
@@ -65,7 +65,7 @@ class Doc():
 				"mask": "商品店铺榜",
 				"header": "品牌粒度",
 				"main": doc(".dtpicker-main-text .num").text(),
-				"category": doc(".category-dropdown .btn.btn-dropdown").text().split(">")[-1],
+				"category": doc(".category-dropdown .btn.btn-dropdown").text().split(">")[-1].split(".")[-1],
 				"brand": doc(".brand-dropdown .btn.btn-dropdown").text(),
 				"device": doc(".device-dropdown .btn.btn-dropdown").text(),
 				"seller": doc(".seller-dropdown .btn.btn-dropdown").text(),
@@ -114,7 +114,7 @@ class Doc():
 				"mask": "商品店铺榜",
 				"header": "行业粒度",
 				"main": doc(".dtpicker-main-text .num").text(),
-				"category": doc(".category-dropdown .btn.btn-dropdown").text().split(">")[-1],
+				"category": doc(".category-dropdown .btn.btn-dropdown").text().split(">")[-1].split(".")[-1],
 				"device": doc(".device-dropdown .btn.btn-dropdown").text(),
 				"seller": doc(".seller-dropdown .btn.btn-dropdown").text(),
 				"head": doc(".active.ui-tab-head-item").text(),
@@ -127,7 +127,7 @@ class Doc():
 				"mask": "商品店铺榜",
 				"header": "属性粒度",
 				"main": doc(".dtpicker-main-text .num").text(),
-				"category": doc(".category-dropdown .btn.btn-dropdown").text().split(">")[-1],
+				"category": doc(".category-dropdown .btn.btn-dropdown").text().split(">")[-1].split(".")[-1],
 				"attribute": doc(".flex-content").text(),
 				"device": doc(".device-dropdown .btn.btn-dropdown").text(),
 				"seller": doc(".seller-dropdown .btn.btn-dropdown").text(),

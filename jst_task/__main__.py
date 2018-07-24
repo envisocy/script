@@ -1,9 +1,11 @@
 import datetime
 
 from jst_task.database import JST_TASK
+from jst_task.view_task import VIEW_TASK
 
 
 task = JST_TASK()
+
 
 try:
     import sys
@@ -11,6 +13,8 @@ try:
     # argv = eval(argv)
 except:
     argv = "jst.orders.query"
+
+
 
 print(" -->:", argv)
 
@@ -43,4 +47,8 @@ def default_task(mode="jst.orders.query", modified_time="", time_slot=""):
 		print(" - DO NOTHING!")
 
 
-default_task(mode=argv)
+if argv.split()[0] == "view":
+	view = VIEW_TASK()
+	view.run()
+else:
+	default_task(mode=argv)
