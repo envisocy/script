@@ -47,8 +47,20 @@ def default_task(mode="jst.orders.query", modified_time="", time_slot=""):
 		print(" - DO NOTHING!")
 
 
-if argv.split()[0] == "view":
-	view = VIEW_TASK()
+# view3
+if argv[0:4] == "view":
+	if len(argv) == 4:
+		date_length = 1
+	else:
+		date_length = int(argv[4:])
+	view = VIEW_TASK(mode="daily_sales_result", date_length=date_length)
+	view.run()
+elif argv[0:4] == "shop":
+	if len(argv) == 4:
+		date_length = 3
+	else:
+		date_length = int(argv[4:])
+	view = VIEW_TASK(mode="daily_shop_sales", date_length=date_length)
 	view.run()
 else:
 	default_task(mode=argv)

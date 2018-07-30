@@ -1,10 +1,14 @@
 from .database import JST_TASK
+from .view_task import VIEW_TASK
 import datetime
 
 
 kwargs={}
 
 task = JST_TASK(**kwargs)
+view = VIEW_TASK(mode="daily_sales_result", **kwargs)
+shop = VIEW_TASK(mode="daily_shop_sales", **kwargs)
+
 
 def default_task(mode="jst.orders.query", modified_time="", time_slot=""):
 	config = {

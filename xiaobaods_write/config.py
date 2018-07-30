@@ -6,6 +6,10 @@ __date__ = '2018/7/11 10:47'
 
 import os
 
+######################
+###### document ######
+######################
+
 def GetDesktopPath():
     return os.path.join(os.path.expanduser("~"), 'Desktop')
 
@@ -22,13 +26,45 @@ SQL_LIST = [
 ]
 
 # 品牌粒度列表
-BRAND_LIST = ["PNVN", "冬朵", "凝享", "前途", "CHNPLUM/华梅", "呀吼", "好虫常在", "尚兰奴", "尚·蔓蒂", "尚驭", "左街右巷", "慕爱人",
-              "梦觅", "橡树猫", "比丽福", "波世岛", "淑美林", "知心羊", "粉蝉", "艾妃尼思", "花嫉", "萌路", "蒙奴莎", "雅来特", "音棉",]
+BRAND_LIST = [
+	"PNVN", "冬朵", "凝享", "前途", "CHNPLUM/华梅", "呀吼", "好虫常在", "尚兰奴", "尚·蔓蒂", "尚驭", "左街右巷", "慕爱人",
+    "梦觅", "橡树猫", "比丽福", "波世岛", "淑美林", "知心羊", "粉蝉", "艾妃尼思", "花嫉", "萌路", "蒙奴莎", "雅来特", "音棉",
+]
+
+# 自有店铺粒度列表(通过erp中的shop.query更新)
+OWNED_LIST = [
+	"芮丽娅", "zsrs", "rfzk",
+]
+
+# 更新OWNED_LIST列表
+def return_shop_list(sql="xiaobaods_w"):
+    import pymysql
+    import configure
+    conn = pymysql.connect(
+        host=configure.echo(sql)["config"]["host"],
+        port=configure.echo(sql)["config"]["port"],
+        user=configure.echo(sql)["config"]["user"],
+        passwd=configure.echo(sql)["config"]["passwd"],
+        charset=configure.echo(sql)["config"]["charset"],
+        db="baoersqlerp")
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT `brand` FROM `shops.query` WHERE `operator` is not null;")
+        conn.commit()
+        data = cursor.fetchall()
+    finally:
+        cursor.close()
+        conn.close()
+    result = [i[0] for i in data]
+    return result
+OWNED_LIST.extend(return_shop_list())
+
+
 
 # 通行证
 PERMIT = {
 	"品牌粒度":["女装/女士精品", ],
-	"行业粒度":["牛仔裤", "休闲裤", "打底裤", "半身裙", "棉裤/羽绒裤", "T恤"],
+	"行业粒度":["牛仔裤", "休闲裤", "打底裤", "半身裙", "棉裤/羽绒裤", "T恤", "卫衣/绒衫"],
 	"属性粒度":{
 			  "牛仔裤": {
 				  "款式": ["哈伦裤", "阔脚裤", "铅笔裤", "连衣裤", "背带裤", "直筒", "灯笼裤", "微喇裤", "工装裤", "垮裤", ],
@@ -106,3 +142,17 @@ databases_config = {
 # ------------------------------
 if not DESKTOP_DIR:
 	DESKTOP_DIR = GetDesktopPath()
+
+######################
+###### pattern  ######
+######################
+
+TOP_LIST_WIN = ["D:\\download", "E:\\download", "G:\\download", \
+                "D:\\搜狗高速下载", "E:\\搜狗高速下载", "G:\\搜狗高速下载",
+                "H:\\download",]
+TOP_LIST_LINUX = ["~/Downloads"]
+
+SQL_LIST_PATTERN = [
+	"xiaobaods_w",
+	"localhost",
+]

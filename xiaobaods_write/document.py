@@ -4,6 +4,8 @@
 __author__ = 'envisocy'
 __date__ = '2018/7/11 10:35'
 
+# 生意参谋的数据收集
+
 import re
 from pyquery import PyQuery as pq
 import configure
@@ -22,7 +24,7 @@ class Doc():
 				html = f.read()
 		pattern = re.compile('(<html.*?</html>)', re.S)
 		htmls = re.findall(pattern, html)
-		self.msg = " *** 载入文档并初始化信息 ***\n * From: {}{}{}\n * Details: {} bytes ( {} Blocks )\n" \
+		self.msg = " *** 生意参谋商品信息模块 ***\n * From: {}{}{}\n * Details: {} bytes ( {} Blocks )\n" \
 		           " * A new processing engine: Ailurus fulgens X\n *** *** *** *** *** *** ***\n".format(DESKTOP_DIR,
 		                                                                    os.sep, filename, len(html), len(htmls))
 		self.htmls = htmls
@@ -74,6 +76,7 @@ class Doc():
 				"curr": doc(".ui-pagination-curr").text(),
 				"total": doc(".ui-pagination-total").text(),
 			}
+			# 超长品牌配置
 			if self.info["brand"] == "CHNPLUM/...":
 				self.info["brand"] = "CHNPLUM/华梅"
 			self.brand_list.append(self.info["brand"])  # 为最终检查提供依据
@@ -279,7 +282,8 @@ class Doc():
 						"category": self.info["category"],
 						"rank": item("td:first_child").text()[:3],
 						"itemId": item("td:nth_child(2) a").attr("href").split("id=")[1][:60],
-						"sale": item("td:nth_child(4)").text().replace(",", "")[:10],
+						"flowIndex": item("td:nth_child(4)").text().replace(",", "")[:10],
+						"searchPopularity": item("td:nth_child(5)").text().replace(",", ""),
 						"paymentNumber": item("td:nth_child(6)").text().replace(",", "")[:6],
 						"title": item("td:nth_child(2)").text().replace("'","`")[:100].split("\n")[0],
 						"originalPrice": item("td:nth_child(2)").text().split("：")[-1].replace(",",""),
@@ -331,7 +335,11 @@ class Doc():
 			key_centence += "`" + str(key) + "`" + ","
 			value_centence += "'" + str(value) + "'" + ","
 		table = databases_config[self.mode][self.info["head"]]["table"]
-		if table == "bc_category_granularity":
+		if table == "bc_brand_granularity_sales" and (self.info["brand"] in OWNED_LIST):
+			table = "bc_owned_granularity_sales"
+		elif table == "bc_brand_granularity_visitor" and (self.info["brand"] in OWNED_LIST):
+			table = "bc_owned_granularity_visitor"
+		elif table == "bc_category_granularity":
 			table = "bc_category_{}_{}".format(COMPARE_category[self.info["category"]],
 			                COMPARE_type[PERMIT_attribute[self.info["category"]][self.info["attribute"]]])
 		centence = "INSERT INTO `{}`({}) VALUES({});".format(table, key_centence[:-1], value_centence[:-1])
@@ -374,9 +382,13 @@ class Doc():
 					table_list = ["bc_attribute_granularity_sales", "bc_attribute_granularity_visitor"]
 					item_list = PERMIT["行业粒度"]
 					item_name = "category"
-				elif self.mode == "品牌粒度":
-					table_list = ["bc_brand_granularity_sales", "bc_brand_granularity_visitor"]
-					item_list = set(self.brand_list + BRAND_LIST)
+				elif self.mode == "品牌粒度" and (self.brand_list[0] in BRAND_LIST):
+					table_list = ["bc_brand_granularity_sales", "bc_brand_granularity_visitor", ]
+					item_list = set(BRAND_LIST)
+					item_name = "brand"
+				elif self.mode == "品牌粒度" and (self.brand_list[0] in OWNED_LIST):
+					table_list = ["bc_owned_granularity_sales", "bc_owned_granularity_visitor", ]
+					item_list = set(OWNED_LIST)
 					item_name = "brand"
 				for item in item_list:
 					for table in table_list:

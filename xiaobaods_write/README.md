@@ -2,14 +2,16 @@
 
 #### 信息
 - 程序：数据组
-- 日期：2018-07-23
+- 日期：2018-07-24
 - 数据库：Mysql
 
 #### 更新文档
 - Ver_0.1 Alpha 测试版本
 - Ver_0.2 Alpha 四表基础功能版
-- Ver_0.3 Alpha 添加属性表功能，添加检测程序
-- Ver_0.4 Alpha 修复其他类目BUG
+- Ver_0.21 Alpha 添加属性表功能，添加检测程序
+- Ver_0.22 Alpha 修复其他类目BUG
+- Ver_0.23 Alpha 添加OWNED列表
+- Ver_0.24 Alpha 修复流量表BUG
 
 #### 使用文档
 【暂无】
