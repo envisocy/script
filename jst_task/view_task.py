@@ -31,7 +31,10 @@ class VIEW_TASK():
 					self.save_to_sql(sql=self.kwargs["sql"], centence=self.return_sql_sentence(data=log, is_log=True),
 									 db="baoersqlview", is_log=True)
 			if self.kwargs["mode"] == "daily_shop_sales":
+				# 测试输出结果
+				print("参数:", self.kwargs["date_length"], date_length_run)
 				centence = self.return_sql_sentence(date_length=self.kwargs["date_length"]-date_length_run)
+				print("centence:", centence)
 				log = self.save_to_sql(sql=self.kwargs["sql"], centence=centence)
 				if write_log:
 					self.save_to_sql(sql=self.kwargs["sql"], centence=self.return_sql_sentence(data=log, is_log=True),
@@ -44,14 +47,17 @@ class VIEW_TASK():
 		'''
 		if self.kwargs["mode"] == "daily_sales_result":
 			if not is_log:
-				sql_sentence = "REPLACE INTO baoersqlview.daily_sales_results SELECT T1.`shop_name` AS `shop`, DATE(T1.`order_date`) AS `date`,T1.`运营` AS `operator`,T1.`件数` AS `sale`,\
-	T2.`人工单` AS `manual_sale`,T1.`销售额` AS `amount`,T2.`人工销售额` AS `manual_amount`, NOW() AS `refresh_time` FROM (SELECT O.shop_name,O.order_date,S.operator AS `运营`,COUNT( O.`o_id` ) AS `件数`,SUM( P.`amount`\
-	) AS `销售额` FROM `jst.orders.query` AS O INNER JOIN `jst.orders.query.items` AS I ON O.o_id = I.o_id INNER JOIN `jst.orders.query.pays` AS P \
-	ON O.o_id = P.o_id INNER JOIN `shops.query` AS S ON O.shop_name = S.shop_name WHERE O.`order_date` >= DATE_SUB( CURDATE( ), INTERVAL {0} DAY ) \
-	AND O.`order_date` < DATE_SUB( CURDATE( ), INTERVAL {1} DAY ) GROUP BY O.shop_name ) AS T1 LEFT JOIN ( SELECT N.shop_name, COUNT( N.`o_id` ) AS \
-	`人工单`,SUM( N.`pay_amount` ) AS `人工销售额` FROM `jst.orders.query.special_single` AS N WHERE N.`order_date` >= DATE_SUB( CURDATE( ), \
-	INTERVAL {0} DAY ) AND N.`order_date` < DATE_SUB( CURDATE( ), INTERVAL {1} DAY ) GROUP BY N.shop_name ) AS T2 ON T1.shop_name = T2.shop_name \
-	GROUP BY T1.shop_name ORDER BY `件数` DESC;".format(date_length, date_length - 1)
+				sql_sentence = "REPLACE INTO baoersqlview.daily_sales_results SELECT T1.`shop_name` AS `shop`, \
+	DATE(T1.`order_date`) AS `date`,T1.`运营` AS `operator`,T1.`件数` AS `sale`,T2.`人工单` AS `manual_sale`,T1.`销售额` \
+	AS `amount`,T2.`人工销售额` AS `manual_amount`, NOW() AS `refresh_time` FROM (SELECT any_value(O.shop_name) AS \
+	shop_name,any_value(O.order_date) AS order_date,any_value(S.operator) AS `运营`,COUNT( O.`o_id` ) AS `件数`,\
+	SUM( P.`amount`) AS `销售额` FROM `jst.orders.query` AS O INNER JOIN `jst.orders.query.items` AS I ON O.o_id = I.o_id \
+	INNER JOIN `jst.orders.query.pays` AS P ON O.o_id = P.o_id INNER JOIN `shops.query` AS S ON O.shop_name = S.shop_name \
+	WHERE O.`order_date` >= DATE_SUB( CURDATE( ), INTERVAL {0} DAY ) AND O.`order_date` < DATE_SUB( CURDATE( ), INTERVAL {1} DAY ) \
+	GROUP BY O.shop_name ) AS T1 LEFT JOIN ( SELECT any_value(N.shop_name) AS shop_name, COUNT( N.`o_id` ) AS `人工单`,\
+	SUM( N.`pay_amount` ) AS `人工销售额` FROM `jst.orders.query.special_single` AS N WHERE N.`order_date` >= \
+	DATE_SUB( CURDATE( ), INTERVAL {0} DAY ) AND N.`order_date` < DATE_SUB( CURDATE( ), INTERVAL {1} DAY ) GROUP BY \
+	N.shop_name ) AS T2 ON T1.shop_name = T2.shop_name ORDER BY `件数` DESC;".format(date_length, date_length - 1)
 				return sql_sentence
 			else:   # log
 				sql_sentence = "INSERT INTO `{}` ({}) VALUES({}) ;".format("view_task_log"
@@ -59,17 +65,17 @@ class VIEW_TASK():
 					str([str(i).replace("'","").replace('"','') for i in data.values()])[1:-1].replace('"',"'")
 				)
 				return sql_sentence
-		if self.kwargs["mode"] == "daily_shop_sales":
+		elif self.kwargs["mode"] == "daily_shop_sales":
 			if not is_log:
+				date = datetime.datetime.strftime(datetime.datetime.strptime(self.kwargs["date"], "%Y-%m-%d") + datetime.timedelta(date_length), "%Y-%m-%d")
 				sql_sentence = "REPLACE INTO baoersqlview.daily_shop_sales SELECT `date`, `brand`, sum(`sale`) AS `sale`, NOW() AS `refresh_time` FROM baoersqlbs.bc_brand_granularity_sales WHERE " \
 				               "date = '{0}' GROUP BY brand UNION ALL SELECT `date`, `brand`, sum(`sale`) AS `sale`, NOW() AS `refresh_time`" \
-				               "FROM baoersqlbs.bc_owned_granularity_sales WHERE date = '{0}' GROUP BY brand ORDER BY `sale` DESC;".format(self.kwargs["date"])
+				               "FROM baoersqlbs.bc_owned_granularity_sales WHERE date = '{0}' GROUP BY brand ORDER BY `sale` DESC;".format(date)
 				return sql_sentence
 			else:   # log
 				sql_sentence = "INSERT INTO `{}` ({}) VALUES({}) ;".format("view_task_log"
 					, str([i for i in data.keys()])[1:-1].replace("'","`"),
-				    str([str(i).replace("'","").replace('"','') for i in data.values()])[1:-1].replace('"',"'")
-				                                                           )
+				    str([str(i).replace("'","").replace('"','') for i in data.values()])[1:-1].replace('"',"'"))
 				return sql_sentence
 				
 	

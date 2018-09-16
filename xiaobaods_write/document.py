@@ -79,6 +79,10 @@ class Doc():
 			# 超长品牌配置
 			if self.info["brand"] == "CHNPLUM/...":
 				self.info["brand"] = "CHNPLUM/华梅"
+			elif self.info["brand"] == "SoleExample/独...":
+				self.info["brand"] = "SoleExample/独例"
+			elif self.info["brand"] == "SEHZNZIE...":
+				self.info["brand"] = "SEHZNZIEZ/轩兹"
 			self.brand_list.append(self.info["brand"])  # 为最终检查提供依据
 		# elif self.mode == "商品详情":
 		# 	if "tmall" in doc(".screen-header .item-panel .img-wrapper a").attr("href"): # 天猫
@@ -216,7 +220,7 @@ class Doc():
 				if item("td:nth_child(3) a").attr("href"):  # 排除可能存在的店铺被删除的情况
 					yield {
 						"date": self.info['main'],
-						"brand": self.info['brand'][:10],
+						"brand": self.info['brand'][:20],
 						"rank": item("td:first_child").text()[:3],
 						"itemId": item("td:nth_child(2) a").attr("href").split("id=")[1][:60],
 						"sale": item("td:nth_child(4)").text().replace(",", "")[:10],
@@ -235,7 +239,7 @@ class Doc():
 				if item("td:nth_child(3) a").attr("href"):  # 排除可能存在的店铺被删除的情况
 					yield {
 						"date": self.info['main'],
-						"brand": self.info['brand'][:10],
+						"brand": self.info['brand'][:20],
 						"rank": item("td:first_child").text()[:3],
 						"itemId": item("td:nth_child(2) a").attr("href").split("id=")[1][:60],
 						"flowIndex": item("td:nth_child(4)").text().replace(",", "")[:10],
@@ -312,7 +316,7 @@ class Doc():
 						"shopUrl": item("td:nth_child(3) a").attr("href").split("?")[0][:60],
 						"mainPicUrl": item("td:nth_child(2) a img").attr("src").split(".jpg")[0].
 							              split("uploaded/")[1][:100],
-						"bsUrl": item("td.op a").attr("href")[:255], }
+						"bsUrl": item("td.op a").attr("href")[:400], }
 			
 		
 	def save_sql(self, result):

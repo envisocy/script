@@ -2,7 +2,7 @@ import datetime
 
 from jst_task.database import JST_TASK
 from jst_task.view_task import VIEW_TASK
-
+from jst_task.buffer import BUFFER_SQL
 
 task = JST_TASK()
 
@@ -57,10 +57,13 @@ if argv[0:4] == "view":
 	view.run()
 elif argv[0:4] == "shop":
 	if len(argv) == 4:
-		date_length = 3
+		date_length = 5
 	else:
 		date_length = int(argv[4:])
 	view = VIEW_TASK(mode="daily_shop_sales", date_length=date_length)
 	view.run()
+elif argv[0:4] == "buff":
+	buffer = BUFFER_SQL()
+	buffer.run()
 else:
 	default_task(mode=argv)

@@ -28,7 +28,8 @@ SQL_LIST = [
 # 品牌粒度列表
 BRAND_LIST = [
 	"PNVN", "冬朵", "凝享", "前途", "CHNPLUM/华梅", "呀吼", "好虫常在", "尚兰奴", "尚·蔓蒂", "尚驭", "左街右巷", "慕爱人",
-    "梦觅", "橡树猫", "比丽福", "波世岛", "淑美林", "知心羊", "粉蝉", "艾妃尼思", "花嫉", "萌路", "蒙奴莎", "雅来特", "音棉",
+    "梦觅", "橡树猫", "比丽福", "波世岛", "淑美林", "知心羊", "粉蝉", "艾妃尼思", "花嫉（服饰）", "萌路", "蒙奴莎", "雅来特", "音棉",
+	"卡仑奴", "禾彩", "格森美尔", "怡斐尚", "韩左韩右", "HAOALL", "SEHZNZIEZ/轩兹", "OuZiCun/欧姿纯",
 ]
 
 # 自有店铺粒度列表(通过erp中的shop.query更新)
@@ -49,7 +50,7 @@ def return_shop_list(sql="xiaobaods_w"):
         db="baoersqlerp")
     try:
         cursor = conn.cursor()
-        cursor.execute("SELECT `brand` FROM `shops.query` WHERE `operator` is not null;")
+        cursor.execute("SELECT `brand` FROM `shops.query` WHERE `operator` is not null ;")
         conn.commit()
         data = cursor.fetchall()
     finally:
@@ -156,3 +157,41 @@ SQL_LIST_PATTERN = [
 	"xiaobaods_w",
 	"localhost",
 ]
+
+
+######################
+##### shop_daily #####
+######################
+
+PERCENT_TRANSFORM = ["详情页跳出率", "下单转化率", "下单支付转化率", "支付转化率", "点击率", "搜索支付转化率"]
+
+COLUMNS_SWITCH = {"所属终端": "terminal",
+                "商品id": "spuid",
+                "商品标题": "title",
+                "商品在线状态": "status",
+                "浏览量": "PV",
+                "访客数": "UV",
+                "平均停留时长": "residence_time",
+                "详情页跳出率": "bounce_rate",
+                "下单转化率": "order_conversion_rate",
+				"下单支付转化率": "conversion_rate_of_order_payment",
+				"支付转化率": "conversion_rate_of_payment",
+				"下单金额": "single_amount",
+				"下单商品件数": "number_of_order_items",
+				"下单买家数": "number_of_buyers",
+				"支付金额": "amount_of_payment",
+				"支付商品件数": "payment_of_goods",
+				"加购件数": "number_of_additional_purchases",
+				"访客平均价值": "average_visitor_value",
+				"点击次数": "number_of_clicks",
+				"点击率": "clicking_rate",
+				"曝光量": "exposure",
+				"收藏人数": "collection_number",
+				"搜索引导支付买家数": "search_guided_payment_of_buyers",
+				"客单价": "unit_price",
+				"搜索支付转化率": "search_conversion_rate",
+				"搜索引导访客数": "number_of_visitors_guided_by_search",
+				"支付买家数": "number_of_buyers_paid",
+				"售中售后成功退款金额": "successful_refund_amount_after_sale_and_after_sale",
+				"售中售后成功退款笔数": "successful_refund_of_sales_after_sale",
+}

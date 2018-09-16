@@ -86,3 +86,17 @@ FIELD_RULE = {
 	"supplier_sku_id": 10,
 	"vc_name": 20,
 }
+
+
+# 需要处理的数据库名：
+BUFFER_SQL_LIST = [
+	"bc_attribute_granularity_sales", "bc_attribute_granularity_visitor",
+	"bc_brand_granularity_sales", "bc_brand_granularity_visitor",
+	"bc_owned_granularity_sales", "bc_owned_granularity_visitor",
+	"bc_category_jean_length", "bc_category_jean_style", "bc_category_jean_thick",
+	"bc_category_jean_waist", "bc_category_legging_length", "bc_category_legging_thick",
+	"bc_searchwords_hotwords", "bc_searchwords_risewords",
+]
+
+
+BUFFER_CHINESE_VARIABLE = ["bc_searchwords_hotwords", "bc_searchwords_risewords",]
