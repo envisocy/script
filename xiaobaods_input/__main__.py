@@ -1,32 +1,35 @@
 #!usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import xiaobaods_input
-import xiaobaods_input.Business_adviser_parser
-import xiaobaods_input.Update_ERP_Sales_Together
+import commandLine
+import document
+import bsparse
 
-try:
-    import sys
-    argv = sys.argv[1]
-    argv = eval(argv)
-except:
-    argv = 9
+# 命令行模式
+# Exp: python xiaobaods_input arguments
+
+def getArgv():
+	try:
+		import sys
+		argv = sys.argv[1:]
+	except:
+		argv = []
+	return argv
 
 
-if argv == 1:
-    xiaobaods_input.run(argv)
-elif argv == 8:
-    xiaobaods_input.Update_ERP_Sales_Together.run()
-elif argv == 9:
-    xiaobaods_input.Business_adviser_parser.run()
-elif argv == 90:
-    import xiaobaods_output.reprocessing as rep
-    func = rep.function()
-    func.pr_input()
-elif argv // 10 == 9 and argv % 10 < 10:
-    import datetime
-    import xiaobaods_output.reprocessing as rep
-    func = rep.function()
-    func.pr_input(date=datetime.datetime.strftime(
-        datetime.datetime.now().date() -datetime.timedelta(argv % 10 + 1),
-        "%Y-%m-%d"))
+if __name__ == '__main__':
+    argv = getArgv()
+    # 实例化命令行模块
+    cl = commandLine.COMMANDLINE(argv)
+    # 显示传入的参数
+    type, length = cl.log()
+    method, argument = cl.parseCommandLine()
+    # 进行数据输出
+    doc = document.Doc()
+    data = doc.getData()
+    # bs: data = [html, html, ...]
+    if method == 'bs':
+	    pb = bsparse.ParseBS(data)
+	    pb.run()
+    
+    

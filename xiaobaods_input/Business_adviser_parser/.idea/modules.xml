@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Business_adviser_parser.iml" filepath="$PROJECT_DIR$/.idea/Business_adviser_parser.iml" />
-      <module fileurl="file://F:\workbench\project\Business_adviser_parser\.idea\parse_goods_list.iml" filepath="F:\workbench\project\Business_adviser_parser\.idea\parse_goods_list.iml" />
-    </modules>
-  </component>
-</project>
