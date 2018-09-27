@@ -14,6 +14,7 @@ from setting import *
 class ParseBS():
 	def __init__(self, htmls):
 		self.htmls = htmls
+		self.length = 0
 	
 	def run(self):
 		# run([form, parse, save] check)
@@ -21,9 +22,12 @@ class ParseBS():
 		for html in self.htmls:
 			num += 1
 			print(" >>> 进行第 {} 个文档处理 >>>".format(num))
-			error_msg, response = self.form(html)
-			# print(response)
-			if error_msg != '':
+			error_msg, warn_msg, response = self.form(html)
+			# 调试信息
+			print("调试信息：", response)
+			if warn_msg:
+				print(warn_msg)
+			if error_msg:
 				print(' ! 发现错误，中断进程！错误原因：' + error_msg)
 				continue
 			source_list, tableDict = self.parse(html, response)
@@ -33,40 +37,53 @@ class ParseBS():
 	
 	def form(self, html):
 		# run -> form
+		warn_msg = ""
 		doc = pq(html)
 		title = returnDoc(doc, 'ul.menuList li.selected .selected-mask+a.nameWrapper span.name').strip()
 		formList = FORMDIC.get(title, {})
 		error_msg = ''
 		response = {"title": title}
+		if (len(html) != 0) and (len(html) == self.length):
+			warn_msg = " @ 本条记录可能因为网页未刷新重复录入，请检查！"
+		self.length = len(html)
 		for key, value in formList.items():
 			parseContent = returnDoc(doc=doc, text=value['text'], mode=value.get('mode', ''), arg=value.get('arg',''))
 			response.update({key: parseContent})
 			if (value.get("content", "") != "return") and (parseContent != value['content']):
-				error_msg += '【' + value["alias"] + '】 界面选择有误！ \t'
-		return error_msg, response
+				error_msg += '【' + value["alias"] + '】 界面选择有误！ '
+		return error_msg, warn_msg, response
 	
 	def parse(self, html, response):
 		# run -> parse
 		doc = pq(html)
 		source_list = []
 		if response["title"] == "市场大盘":
+			selector = response["title"]
 			title_1 = ["category", "trade_index", "trade_growth", "payment_amount_of_parent", "orders_paid_of_parent"]
 			title_2 = ["category", "sales", "sales_of_parent", "saled_sales", "saled_sales_of_parent"]
-			data = self.market_quotations(doc=doc, text='#cateCons .ant-table-tbody tr', data={}, title=title_1)
-			data = self.market_quotations(doc=doc, text='#cateOverview .ant-table-tbody tr', data=data, title=title_2)
+			data = self.processor(doc=doc, text='#cateCons .ant-table-tbody', data={}, title=title_1)
+			data = self.processor(doc=doc, text='#cateOverview .ant-table-tbody', data=data, title=title_2)
 			source_list = []
-			for key, value in data.items():
-				data[key].update({'category': key})
-				source_list.append(value)
-			for updateTitle in UPDATEDIC[response["title"]]:
-				# print('____________updateTitle: ', updateTitle)
-				if response.get(updateTitle, ""):
-					for index in range(len(source_list)):
-						source_list[index].update({updateTitle: response[updateTitle]})
-		return source_list, TABLEDIC[response["title"]]
+		if response["title"] == "市场排行":
+			selector = response["rankname"] + response["ranktype"]
+			title = RANKDIC[selector]["title"]
+			data = self.processor(doc=doc, text='.ant-table-tbody', data={}, title=title, eq=1)
+			source_list = []
+		# 将 title 中的第一项回复到列表中
+		for key, value in data.items():
+			data[key].update({RANKDIC[selector]["title"][0]: key})
+			source_list.append(value)
+		# 处理列表中的 response ，加入到待存入 mysql 列表中：
+		for updateTitle in UPDATEDIC[response["title"]]:
+			# print('____________updateTitle: ', updateTitle)
+			if response.get(updateTitle, ""):
+				for index in range(len(source_list)):
+					source_list[index].update({updateTitle: response[updateTitle]})
+		return source_list, RANKDIC[selector]
 			
-	def market_quotations(self, doc, text='#cateCons .ant-table-tbody tr', data={}, title=[]):
-		for item in doc(text).items():
+	def processor(self, doc, text='', data={}, title=[], eq=0):
+		docs = doc(text).eq(eq)
+		for item in docs('tr').items():
 			location = 1
 			for td in item('td').items():
 				for key in td('div.sycm-common-shop-td').items():
@@ -77,10 +94,10 @@ class ParseBS():
 					source = value.text()
 					if ">99999%" in source:
 						source = "9999.99"
-					if "%" in source:
-						source = '%.4f' % (float(source[:-1]) / 100)
 					if "," in source:
 						source = source.replace(",", "")
+					if "%" in source:
+						source = '%.4f' % (float(source[:-1]) / 100)
 					data[key_name].update({title[location]: source})
 					location += 1
 		return data

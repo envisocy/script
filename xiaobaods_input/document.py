@@ -6,9 +6,6 @@ __date__ = '2018/9/25 11:53'
 
 
 import re
-from pyquery import PyQuery as pq
-import configure
-import pymysql
 
 from setting import *
 
