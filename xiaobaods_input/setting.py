@@ -26,17 +26,20 @@ if not FILEDIR:
 
 # form
 ### {...: {"content": 检验内容/"return"回调, "alias": 信息显示的文字内容, "text"/"mode"/"arg": 检验参数}}
+### Ver_0.2.3 加入 condition 字段，只有满足条件，才会触发 form 的停止机制
 
 FORMDIC = {
 	"市场大盘": {
 		"tag": {"content": "市场", "alias": "生意参谋主标签", "text": "ul.menu-list .selected", },
-		"root": {"content": "女装/女士精品", "alias": "主分类", "text": ".isready .common-picker-header", "mode": "attr", "arg": "title", },
+		"root": {"content": "return", "alias": "主分类", "text": ".isready .common-picker-header", "mode": "attr", "arg": "title", },
 		"date": {"content": "return", "alias": "日期","text": ".oui-date-picker-current-date", "mode": "split", "arg": 1, },
 		"time": {"content": "日", "alias":"时间周期", "text": "#app button.ant-btn-primary", },
 		"terminal": {"content": "所有终端", "alias": "终端设备", "text": ".oui-select-container-value", },
 		"pathform": {"content": "全部", "alias": "pathform", "text": ".ebase-FaCommonFilter__right .ant-select-selection-selected-value", },
-		"total1": {"content": "100", "alias": "条目数1", "text": "#cateCons .ant-select-selection-selected-value", },
-		"total2": {"content": "100", "alias": "条目数2", "text": "#cateOverview .ant-select-selection-selected-value", },
+		"total1": {"content": "100", "alias": "条目数1", "text": "#cateCons .ant-select-selection-selected-value",
+		           "condition": ["root", "女装/女士精品"]},
+		"total2": {"content": "100", "alias": "条目数2", "text": "#cateOverview .ant-select-selection-selected-value",
+		           "condition": ["root", "女装/女士精品"]},
 	},
 	"市场排行": {
 		"tag": {"content": "市场", "alias": "生意参谋主标签", "text": "ul.menu-list .selected", },
@@ -60,7 +63,7 @@ def returnDoc(doc, text, mode='', arg=''):
 	return doc(text).text().strip()
 
 UPDATEDIC = {
-	"市场大盘": ['date'],
+	"市场大盘": ['root', 'date'],
 	"市场排行": ['date'],
 }
 
@@ -73,4 +76,6 @@ RANKDIC = {
 	"市场大盘": {"title": ["category"], "table": "bs_market_quotations", },
 	"店铺高交易": {"title": ["shop_name", "shop_rank", "trade_index", "trade_growth", "payment_conversion"],
 	          "table": "bs_market_rank_shop_sale", },
+	"店铺高流量": {"title": ["shop_name", "shop_rank", "flow_index", "search_popularity", "trade_index"],
+	          "table": "bs_market_rank_shop_flow", },
 }

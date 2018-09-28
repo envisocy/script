@@ -50,7 +50,12 @@ class ParseBS():
 			parseContent = returnDoc(doc=doc, text=value['text'], mode=value.get('mode', ''), arg=value.get('arg',''))
 			response.update({key: parseContent})
 			if (value.get("content", "") != "return") and (parseContent != value['content']):
-				error_msg += '【' + value["alias"] + '】 界面选择有误！ '
+				# Ver_0.2.3 condition
+				if value.get("condition"):
+					if response.get(value["condition"][0]) == value["condition"][1]:
+						error_msg += '【' + value["alias"] + '】 界面选择有误！ '
+				else:
+					error_msg += '【' + value["alias"] + '】 界面选择有误！ '
 		return error_msg, warn_msg, response
 	
 	def parse(self, html, response):
