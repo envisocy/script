@@ -74,8 +74,14 @@ SQL_LIST_PATTERN = [
 
 RANKDIC = {
 	"市场大盘": {"title": ["category"], "table": "bs_market_quotations", },
-	"店铺高交易": {"title": ["shop_name", "shop_rank", "trade_index", "trade_growth", "payment_conversion"],
+	"店铺高交易": {"title": ["name", "rank", "trade_index", "trade_growth", "payment_conversion"],
 	          "table": "bs_market_rank_shop_sale", },
-	"店铺高流量": {"title": ["shop_name", "shop_rank", "flow_index", "search_popularity", "trade_index"],
+	"店铺高流量": {"title": ["name", "rank", "flow_index", "search_popularity", "trade_index"],
 	          "table": "bs_market_rank_shop_flow", },
+	"商品高交易": {"title": ["name", "rank", "trade_index", "trade_growth", "payment_conversion"],
+	          "table": "bs_market_rank_item_sale", },
+	"商品高流量": {"title": ["name", "rank", "flow_index", "search_popularity", "trade_index"],
+	          "table": "bs_market_rank_item_flow", },
+	"商品高意向": {"title": ["name", "rank", "collection_popularity", "cart_popularity", "trade_index"],
+	          "table": "bs_market_rank_item_desire", },
 }

@@ -72,7 +72,13 @@ class ParseBS():
 		if response["title"] == "市场排行":
 			selector = response["rankname"] + response["ranktype"]
 			title = RANKDIC[selector]["title"]
-			data = self.processor(doc=doc, text='.ant-table-tbody', data={}, title=title, eq=1)
+			if response["rankname"] == "店铺":
+				eq = 1
+				key_name_text = 'div.sycm-common-shop-td'
+			elif response["rankname"] == "商品":
+				eq = 0
+				key_name_text = 'div.sycm-goods-td'
+			data = self.processor(doc=doc, text='.ant-table-tbody', data={}, title=title, eq=eq, key_name_text=key_name_text)
 			source_list = []
 		# 将 title 中的第一项回复到列表中
 		for key, value in data.items():
@@ -86,12 +92,12 @@ class ParseBS():
 					source_list[index].update({updateTitle: response[updateTitle]})
 		return source_list, RANKDIC[selector]
 			
-	def processor(self, doc, text='', data={}, title=[], eq=0):
+	def processor(self, doc, text='', data={}, title=[], eq=0, key_name_text='div.sycm-common-shop-td'):
 		docs = doc(text).eq(eq)
 		for item in docs('tr').items():
 			location = 1
 			for td in item('td').items():
-				for key in td('div.sycm-common-shop-td').items():
+				for key in td(key_name_text).items():
 					key_name = key.text().replace("较前一日", "")
 					if data.get(key_name, "") == "":
 						data[key_name] = {}
