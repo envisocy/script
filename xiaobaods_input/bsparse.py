@@ -78,6 +78,9 @@ class ParseBS():
 			elif response["rankname"] == "商品":
 				eq = 0
 				key_name_text = 'div.sycm-goods-td'
+			elif response["rankname"] == "品牌":
+				eq = 0
+				key_name_text = 'div.sycm-common-shop-td'
 			data = self.processor(doc=doc, text='.ant-table-tbody', data={}, title=title, eq=eq, key_name_text=key_name_text)
 			source_list = []
 		# 将 title 中的第一项回复到列表中

@@ -84,4 +84,8 @@ RANKDIC = {
 	          "table": "bs_market_rank_item_flow", },
 	"商品高意向": {"title": ["name", "rank", "collection_popularity", "cart_popularity", "trade_index"],
 	          "table": "bs_market_rank_item_desire", },
+	"品牌高交易": {"title": ["name", "rank", "trade_index", "trade_growth", "payment_conversion"],
+	          "table": "bs_market_rank_brand_sale", },
+	"品牌高流量": {"title": ["name", "rank", "flow_index", "search_popularity", "trade_index"],
+	          "table": "bs_market_rank_brand_flow", },
 }
