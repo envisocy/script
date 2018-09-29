@@ -106,11 +106,15 @@ class ParseBS():
 	def processor(self, doc, text='', data={}, title=[], eq=0, key_name_text='div.sycm-common-shop-td', p=False):
 		docs = doc(text).eq(eq)
 		for item in docs('tr').items():
-			location = 1
+			location = 0
 			for td in item('td').items():
 				if p:
 					for key in td(key_name_text).parent().items():
 						key_name = key.text().replace("较前一日", "").strip()
+						if key_name[-3:] == "...":
+							for i in key('span').items():
+								if i.attr('title'):
+									key_name = i.attr("title")
 						if data.get(key_name, "") == "":
 							data[key_name] = {}
 				else:
@@ -120,6 +124,8 @@ class ParseBS():
 							data[key_name] = {}
 				for value in td('div span.alife-dt-card-common-table-sortable-value').items():
 					source = value.text()
+					if "-" in source:
+						source = "0"
 					if ">99999%" in source:
 						source = "9999.99"
 					if "," in source:
@@ -127,6 +133,26 @@ class ParseBS():
 					if "%" in source:
 						source = '%.4f' % (float(source[:-1]) / 100)
 					data[key_name].update({title[location]: source})
+				# 补充内容
+				try:
+					img = str(td('img').attr("src")).split(".jpg")[0] + ".jpg"
+					if img != "None.jpg":
+						data[key_name]["img"] = img[:100]
+				finally:
+					pass
+				try:
+					shop_name = td('p.goodsShopName').text()
+					if shop_name:
+						data[key_name]["shop_name"] = shop_name
+				finally:
+					pass
+				try:
+					item_id_list = str(td('a').attr('href')).split("?id=")
+					if len(item_id_list) > 1:
+						data[key_name]["item_id"] = item_id_list[1]
+				finally:
+					pass
+				# 顺序迭代
 					location += 1
 		return data
 	

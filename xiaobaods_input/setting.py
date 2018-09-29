@@ -43,7 +43,7 @@ FORMDIC = {
 	},
 	"市场排行": {
 		"tag": {"content": "市场", "alias": "生意参谋主标签", "text": "ul.menu-list .selected", },
-		"root": {"content": "女装/女士精品", "alias": "主分类", "text": ".isready .common-picker-header", "mode": "attr", "arg": "title", },
+		"root": {"content": "return", "alias": "主分类", "text": ".isready .common-picker-header", "mode": "attr", "arg": "title", },
 		"date": {"content": "return", "alias": "日期","text": ".oui-date-picker-current-date", "mode": "split", "arg": 1, },
 		"time": {"content": "日", "alias":"时间周期", "text": "#app button.ant-btn-primary", },
 		"terminal": {"content": "所有终端", "alias": "终端设备", "text": ".oui-select-container-value", },
@@ -75,7 +75,7 @@ def returnDoc(doc, text, mode='', arg=''):
 
 UPDATEDIC = {
 	"市场大盘": ['root', 'date', ],
-	"市场排行": ['date', ],
+	"市场排行": ['root', 'date', ],
 	"搜索排行": ['root', 'date', 'rankname' ],
 }
 
@@ -122,3 +122,21 @@ RANKDIC = {
 	"修饰词飙升": {"title": ["name", "rank", "rise_range", "relative_number", "search_popularity", "click_populatity", "payment_conversion"],
 	          "table": "bs_search_rank_searchwords_rise", },
 }
+
+# 数据库对照名
+COMPARE_category = {
+	"牛仔裤": "jean",
+	"打底裤": "legging",
+	"休闲裤": "casual",
+}
+
+COMPARE_type = {
+	"款式": "style",
+	"裤长": "length",
+	"腰型": "waist",
+	"厚薄": "thick",
+}
+
+
+
+
