@@ -130,11 +130,12 @@ class ParseBS():
 			for td in item('td').items():
 				if p:
 					for key in td(key_name_text).parent().items():
-						key_name = key.text().replace("较前一日", "").strip()
-						if key_name[-3:] == "...":
+						key_name = key.text().replace("较前一日", "").split('\n')[0].strip()
+						if key_name[-2:] == "..":
 							for i in key('span').items():
 								if i.attr('title'):
-									key_name = i.attr("title")
+									# key_name = i.attr("title")
+									key_name = "!!!"
 						if data.get(key_name, "") == "":
 							data[key_name] = {}
 						if page != 0:
@@ -142,7 +143,7 @@ class ParseBS():
 							rankPlus += 1
 				else:
 					for key in td(key_name_text).items():
-						key_name = key.text().replace("较前一日", "").strip()
+						key_name = key.text().replace("较前一日", "").split('\n')[0].strip()
 						if data.get(key_name, "") == "":
 							data[key_name] = {}
 				for value in td('div span.alife-dt-card-common-table-sortable-value').items():

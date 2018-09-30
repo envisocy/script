@@ -57,3 +57,5 @@ python xiaobaods_input bs
 - Ver 0.4.1 2018-09-30 Alpha: 属性洞察 setting 设置和 form 设置
 - Ver 0.4.2 2018-09-30 Alpha: 属性洞察 店铺和商品 调通
 - Ver 0.4.3 2018-09-30 Alpha: 第一版测试发布版本
+- Ver 0.4.4 2018-09-30 Alpha: 修补了一些漏洞，例如商品信息中错误的出现店铺名
+
