@@ -51,6 +51,9 @@ python xiaobaods_input bs
 - Ver 0.2.5 2018-09-28 Alpha: “市场排行”模块中商品三部分的调通
 - Ver 0.2.6 2018-09-28 Alpha: “市场排行”模块中品牌两部分的调通(不重要)
 - Ver 0.3.1 2018-09-29 Alpha: “搜索排行”模块中五大模块两类排行调通
-- Ver 0.3.2 2018-09-29 Alpha: 添加宝贝的item_id, shop_name 和 img 字段
+- Ver 0.3.2 2018-09-29 Alpha: 添加宝贝的 item_id, shop_name 和 img 字段
 - Ver 0.3.3 2018-09-29 Alpha: 测试之前的所有功能和数据库优化，debug完毕
-- Ver 0.3.4 2018-09-29 Alpha: 补充README文档
+- Ver 0.3.4 2018-09-29 Alpha: 补充 README 文档
+- Ver 0.4.1 2018-09-30 Alpha: 属性洞察 setting 设置和 form 设置
+- Ver 0.4.2 2018-09-30 Alpha: 属性洞察 店铺和商品 调通
+- Ver 0.4.3 2018-09-30 Alpha: 第一版测试发布版本
