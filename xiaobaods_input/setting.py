@@ -5,17 +5,27 @@ __author__ = 'envisocy'
 __date__ = '2018/9/25 11:53'
 
 import os
+import datetime
+
+VER_MSG = 'A new processing engine: Ailurus fulgens V6'
+VER_DETAIL = 'Version: 0.5.0 Beta (published: 2018-10-09)'
 
 # bs(1) 生意参谋取数设置
+
+### debug 信息显示开关
+DEBUGTOGGLE = False
+def now():
+	return datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S:%f')
 
 ### 取数路径：
 FILEDIR = ""
 FILENAME = "html.txt"
-### 数据库配置：
-SQLLIST = [
-	"xiaobaods_w",
-	"localhost",
-]
+
+# ### 数据库配置：(新版本已废弃)
+# SQLLIST = [
+# 	"xiaobaods_w",
+# 	"localhost",
+# ]
 
 ### 默认路径配置
 def GetDesktopPath():
@@ -103,7 +113,7 @@ UPDATEDIC = {
 
 SQL_LIST_PATTERN = [
 	'xiaobaods_w',
-	# 'localhost',
+	'localhost',
 ]
 
 

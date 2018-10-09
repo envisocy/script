@@ -21,16 +21,23 @@ class ParseBS():
 		num = 0
 		for html in self.htmls:
 			num += 1
-			print(" >>> 进行第 {} 个文档处理 >>>".format(num))
+			print(" >>> 进行第 {} / {} 个文档处理 >>>".format(num, len(self.htmls)))
 			error_msg, warn_msg, response = self.form(html)
+			if DEBUGTOGGLE:
+				print("[{}]{}: {}".format(now(), 'error_msg', error_msg))
+				print("[{}]{}: {}".format(now(), 'warn_msg', warn_msg))
+				print("[{}]{}: {}".format(now(), 'response', response))
 			# 调试信息
-			print("调试信息：", response)
+			# print("调试信息：", response)
 			if warn_msg:
 				print(warn_msg)
 			if error_msg:
 				print(' ! 发现错误，中断进程！错误原因：' + error_msg)
 				continue
 			source_list, tableDict = self.parse(html, response)
+			if DEBUGTOGGLE:
+				print("[{}]{}: {}".format(now(), 'source_list', source_list))
+				print("[{}]{}: {}".format(now(), 'tableDict', tableDict))
 			result_msg = self.save(source_list, tableDict)
 			print(result_msg)
 		# self.check()
@@ -131,11 +138,11 @@ class ParseBS():
 				if p:
 					for key in td(key_name_text).parent().items():
 						key_name = key.text().replace("较前一日", "").split('\n')[0].strip()
+						# 针对关键词可能出现的..情况
 						if key_name[-2:] == "..":
 							for i in key('span').items():
 								if i.attr('title'):
-									# key_name = i.attr("title")
-									key_name = "!!!"
+									key_name = i.attr("title")
 						if data.get(key_name, "") == "":
 							data[key_name] = {}
 						if page != 0:
@@ -185,7 +192,7 @@ class ParseBS():
 	
 	def save(self, source_list, tableDic):
 		# run -> save
-		print(source_list)
+		# print(source_list)
 		result_msg = ""
 		for sql in SQL_LIST_PATTERN:
 			sentence = ""

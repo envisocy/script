@@ -37,6 +37,6 @@ class Doc():
 	
 	def getData(self):
 		# 出口函数：打印信息，并返回处理后的数据
-		print(" *** 生意参谋商品信息模块 ***\n" + self.msg + "\n * A new processing engine: Ailurus fulgens X" +
+		print(" *** 生意参谋商品信息模块 ***\n" + self.msg + "\n * {} \n * {}".format(VER_MSG, VER_DETAIL) +
 		                                           "\n *** *** *** *** *** *** ***")
 		return self.htmls
