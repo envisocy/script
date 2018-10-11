@@ -59,4 +59,5 @@ python xiaobaods_input bs
 - Ver 0.4.3 2018-09-30 Alpha: 第一版测试发布版本
 - Ver 0.4.4 2018-09-30 Alpha: 修补了一些漏洞，例如商品信息中错误的出现店铺名
 - Ver 0.5.0 2018-10-09 Beta: 修补了关键词跳帧漏洞，发布正式Beta版本
+- Ver 0.5.1 2018-10-11 Beta: 修改了 dict 逻辑，修补了漏项bug
 

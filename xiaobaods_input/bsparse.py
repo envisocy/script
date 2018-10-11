@@ -81,7 +81,6 @@ class ParseBS():
 			title_2 = ["category", "sales", "sales_of_parent", "saled_sales", "saled_sales_of_parent"]
 			data = self.processor(doc=doc, text='#cateCons .ant-table-tbody', data={}, title=title_1)
 			data = self.processor(doc=doc, text='#cateOverview .ant-table-tbody', data=data, title=title_2)
-			source_list = []
 		elif response["title"] == "市场排行":
 			selector = response["rankname"] + response["ranktype"]
 			title = RANKDIC[selector]["title"]
@@ -95,7 +94,6 @@ class ParseBS():
 				eq = 0
 				key_name_text = 'div.sycm-common-shop-td'
 			data = self.processor(doc=doc, text='.ant-table-tbody', data={}, title=title, eq=eq, key_name_text=key_name_text)
-			source_list = []
 		elif response["title"] == "搜索排行":
 			selector = response["rankname"] + response["ranktype"]
 			title = RANKDIC[selector]["title"]
@@ -103,7 +101,6 @@ class ParseBS():
 			key_name_text = 'span.indent-level-0'
 			data = self.processor(doc=doc, text='.ant-table-tbody', data={}, title=title, eq=eq,
 			                      key_name_text=key_name_text, p=True)
-			source_list = []
 		elif response["title"] == "属性洞察":
 			selector = response["ranktype"] + response["root"].split(">")[-1].strip() + response["type"]
 			title = RANKDIC[selector]["title"]
@@ -116,10 +113,9 @@ class ParseBS():
 				key_name_text = 'div.sycm-goods-td'
 			data = self.processor(doc=doc, text='.ant-table-tbody', data={}, title=title, eq=eq,
 				                      key_name_text=key_name_text, p=True, page=int(response["page"]))
-			source_list = []
 		# 将 title 中的第一项回复到列表中
 		for key, value in data.items():
-			data[key].update({RANKDIC[selector]["title"][0]: key})
+			# data[key].update({RANKDIC[selector]["title"][0]: key})
 			source_list.append(value)
 		# 处理列表中的 response ，加入到待存入 mysql 列表中：
 		for updateTitle in UPDATEDIC[response["title"]]:
@@ -127,32 +123,40 @@ class ParseBS():
 			if response.get(updateTitle, ""):
 				for index in range(len(source_list)):
 					source_list[index].update({updateTitle: response[updateTitle]})
+		print(" >>> Total: {} >>>".format(len(source_list)))
 		return source_list, RANKDIC[selector]
-			
+	
+
 	def processor(self, doc, text='', data={}, title=[], eq=0, key_name_text='div.sycm-common-shop-td', p=False, page=0):
 		docs = doc(text).eq(eq)
 		rankPlus = 1
+		times = 0
 		for item in docs('tr').items():
+			times += 1
 			location = 0
 			for td in item('td').items():
+				# 标题循环
 				if p:
 					for key in td(key_name_text).parent().items():
-						key_name = key.text().replace("较前一日", "").split('\n')[0].strip()
+						titleName = key.text().replace("较前一日", "").split('\n')[0].strip()
 						# 针对关键词可能出现的..情况
-						if key_name[-2:] == "..":
+						if titleName[-2:] == "..":
 							for i in key('span').items():
 								if i.attr('title'):
-									key_name = i.attr("title")
-						if data.get(key_name, "") == "":
-							data[key_name] = {}
+									titleName = i.attr("title")
+						if data.get(str(times)) == None:
+							data[str(times)] = {}
 						if page != 0:
-							data[key_name]["rank"] = str((page - 1) * 100 + rankPlus)
+							data[str(times)]["rank"] = str((page - 1) * 100 + rankPlus)
 							rankPlus += 1
+						data[str(times)]["name"] = titleName
 				else:
 					for key in td(key_name_text).items():
-						key_name = key.text().replace("较前一日", "").split('\n')[0].strip()
-						if data.get(key_name, "") == "":
-							data[key_name] = {}
+						titleName = key.text().replace("较前一日", "").split('\n')[0].strip()
+						if data.get(str(times)) == None:
+							data[str(times)] = {}
+						data[str(times)]["name"] = titleName
+				# 数据循环
 				for value in td('div span.alife-dt-card-common-table-sortable-value').items():
 					source = value.text()
 					if source == "-":
@@ -163,30 +167,98 @@ class ParseBS():
 						source = source.replace(",", "")
 					if "%" in source:
 						source = '%.4f' % (float(source[:-1]) / 100)
-					data[key_name].update({title[location]: source})
+					data[str(times)].update({title[location]: source})
 				# 补充内容
 				try:
 					img = str(td('img').attr("src")).split(".jpg")[0] + ".jpg"
 					if img != "None.jpg":
-						data[key_name]["img"] = img[:100]
+						data[str(times)]["img"] = img[:100]
 				finally:
 					pass
 				try:
 					shop_name = td('p.goodsShopName').text()
 					if shop_name:
-						data[key_name]["shop_name"] = shop_name
+						data[str(times)]["shop_name"] = shop_name
 				finally:
 					pass
 				try:
 					item_id_list = str(td('a').attr('href')).split("?id=")
 					if len(item_id_list) > 1:
-						data[key_name]["item_id"] = item_id_list[1]
+						data[str(times)]["item_id"] = item_id_list[1]
 				finally:
 					pass
-				# 顺序迭代
+					# 顺序迭代
 					location += 1
+			if DEBUGTOGGLE:
+				if times != len(data):
+					print(times, len(data))
 		return data
-	
+		
+	# def processor(self, doc, text='', data={}, title=[], eq=0, key_name_text='div.sycm-common-shop-td', p=False, page=0):
+	# 	docs = doc(text).eq(eq)
+	# 	rankPlus = 1
+	# 	times = 0
+	# 	for item in docs('tr').items():
+	# 		times += 1
+	# 		location = 0
+	# 		for td in item('td').items():
+	# 			# 标题循环
+	# 			if p:
+	# 				for key in td(key_name_text).parent().items():
+	# 					key_name = key.text().replace("较前一日", "").split('\n')[0].strip()
+	# 					# 针对关键词可能出现的..情况
+	# 					if key_name[-2:] == "..":
+	# 						for i in key('span').items():
+	# 							if i.attr('title'):
+	# 								key_name = i.attr("title")
+	# 					if data.get(key_name, "") == "":
+	# 						data[key_name] = {}
+	# 					if page != 0:
+	# 						data[key_name]["rank"] = str((page - 1) * 100 + rankPlus)
+	# 						rankPlus += 1
+	# 			else:
+	# 				for key in td(key_name_text).items():
+	# 					key_name = key.text().replace("较前一日", "").split('\n')[0].strip()
+	# 					if data.get(key_name, "") == "":
+	# 						data[key_name] = {}
+	# 			# 数据循环
+	# 			for value in td('div span.alife-dt-card-common-table-sortable-value').items():
+	# 				source = value.text()
+	# 				if source == "-":
+	# 					source = "0"
+	# 				if ">99999%" in source:
+	# 					source = "9999.99"
+	# 				if "," in source:
+	# 					source = source.replace(",", "")
+	# 				if "%" in source:
+	# 					source = '%.4f' % (float(source[:-1]) / 100)
+	# 				data[key_name].update({title[location]: source})
+	# 			# 补充内容
+	# 			try:
+	# 				img = str(td('img').attr("src")).split(".jpg")[0] + ".jpg"
+	# 				if img != "None.jpg":
+	# 					data[key_name]["img"] = img[:100]
+	# 			finally:
+	# 				pass
+	# 			try:
+	# 				shop_name = td('p.goodsShopName').text()
+	# 				if shop_name:
+	# 					data[key_name]["shop_name"] = shop_name
+	# 			finally:
+	# 				pass
+	# 			try:
+	# 				item_id_list = str(td('a').attr('href')).split("?id=")
+	# 				if len(item_id_list) > 1:
+	# 					data[key_name]["item_id"] = item_id_list[1]
+	# 			finally:
+	# 				pass
+	# 			# 顺序迭代
+	# 				location += 1
+	# 		if DEBUGTOGGLE:
+	# 			if times != len(data):
+	# 				print(times, len(data))
+	# 	return data
+	#
 	def processor_notitle(self, doc, text='', data={}, titile=[], key_name_text=''):
 		pass
 	
