@@ -75,6 +75,7 @@ class ParseBS():
 		# run -> parse
 		doc = pq(html)
 		source_list = []
+		titleMark = 0
 		if response["title"] == "市场大盘":
 			selector = response["title"]
 			title_1 = ["category", "trade_index", "trade_growth", "payment_amount_of_parent", "orders_paid_of_parent"]
