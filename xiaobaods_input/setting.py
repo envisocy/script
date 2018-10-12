@@ -8,12 +8,12 @@ import os
 import datetime
 
 VER_MSG = 'A new processing engine: Ailurus fulgens V6'
-VER_DETAIL = 'Version: 0.5.0 Beta (published: 2018-10-09)'
+VER_DETAIL = 'Version: 0.5.2 Beta (published: 2018-10-12)'
 
 # bs(1) 生意参谋取数设置
 
 ### debug 信息显示开关
-DEBUGTOGGLE = False
+DEBUGTOGGLE = True
 def now():
 	return datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S:%f')
 
