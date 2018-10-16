@@ -62,4 +62,5 @@ python xiaobaods_input bs
 - Ver 0.5.1 2018-10-11 Beta: 修改了 dict 逻辑，修补了漏项bug
 - Ver 0.5.2 2018-10-12 Beta: 添加了市场大盘的解析适用性，修复了市场大盘的录入bug
 - Ver 0.5.3 2018-10-12 Beta: 修补前置bug
+- Ver 0.5.4 2018-10-16 Beta: 修补response[page]异常为空的bug
 

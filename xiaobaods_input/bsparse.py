@@ -23,6 +23,7 @@ class ParseBS():
 			num += 1
 			print(" >>> 进行第 {} / {} 个文档处理 >>>".format(num, len(self.htmls)))
 			error_msg, warn_msg, response = self.form(html)
+			print(response)
 			if DEBUGTOGGLE:
 				print("[{}]{}: {}".format(now(), 'error_msg', error_msg))
 				print("[{}]{}: {}".format(now(), 'warn_msg', warn_msg))
@@ -69,6 +70,8 @@ class ParseBS():
 						error_msg += '【' + value["alias"] + '】 界面选择有误！ '
 				else:
 					error_msg += '【' + value["alias"] + '】 界面选择有误！ '
+		if response.get("page") == "":
+			response["page"] = 1
 		return error_msg, warn_msg, response
 	
 	def parse(self, html, response):
