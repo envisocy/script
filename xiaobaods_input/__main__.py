@@ -4,6 +4,7 @@
 import commandLine
 import document
 import bsparse
+import isparse
 
 # 命令行模式
 # Exp: python xiaobaods_input arguments
@@ -29,7 +30,8 @@ if __name__ == '__main__':
     data = doc.getData()
     # bs: data = [html, html, ...]
     if method == 'bs':
-	    pb = bsparse.ParseBS(data)
-	    pb.run()
-    
-    
+        pb = bsparse.ParseBS(data)
+        pb.run()
+    elif method == "is":
+        pi = isparse.ParseIS(data)
+        pi.run()

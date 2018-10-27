@@ -8,7 +8,7 @@ import os
 import datetime
 
 VER_MSG = 'A new processing engine: Ailurus fulgens V6'
-VER_DETAIL = 'Version: 0.5.3 Beta (published: 2018-10-12)'
+VER_DETAIL = 'Version: 0.6.0 Beta (published: 2018-10-27)'
 
 # bs(1) 生意参谋取数设置
 

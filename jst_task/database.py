@@ -37,16 +37,27 @@ class JST_TASK():
 		数值部分
 		'''
 		data = self.get_data(**kwargs)  # 获取data
+		if self.kwargs["mode"] == "shops.query":
+			data.pop()
 		# 核心部分
 		if data:
 			data0 = deepcopy(data)
 			for item in data0:
+				# 刷单条件
+				type = 0
+				if self.kwargs["mode"]=="jst.orders.query":
+					for special_single_charset in SPECIAL_SINGLE_REMARK_LIST:
+						if special_single_charset in item.get("remark", ""):
+							type = 2
+					if item.get("question_type", "")=="特殊单":
+						type =1
 				# 刷单判断
-				if self.kwargs["mode"]=="jst.orders.query" and item.get("question_type", "")=="特殊单":
+				if type > 0:
 					ss_data = [{"o_id": item["o_id"], "create_date": datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S"),
 					            "pay_amount": item["pay_amount"], "order_date": item["order_date"],
 					            "pay_date": item["pay_date"], "remark": item.get("remark"),
 					            "shop_name": item["shop_name"],
+					            "so_id": item.get("so_id"), "shop_buyer_id": item.get("shop_buyer_id"), "type": str(type),
 					            "question_desc": item.get("question_desc"), "question_type": item.get("question_type"),}]
 					ss_sentence = self.return_sql_sentence(data=ss_data, table="jst.orders.query.special_single")
 					self.save_to_sql(sql, ss_sentence, db=db, length=0)

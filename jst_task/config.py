@@ -85,6 +85,11 @@ FIELD_RULE = {
 	"supplier_i_id": 10,
 	"supplier_sku_id": 10,
 	"vc_name": 20,
+	"weight": 8,
+	"freight": 8,
+	"sale_price": 12,
+	"market_price": 12,
+	"cost_price": 12,
 }
 
 
@@ -100,3 +105,5 @@ BUFFER_SQL_LIST = [
 
 
 BUFFER_CHINESE_VARIABLE = ["bc_searchwords_hotwords", "bc_searchwords_risewords",]
+
+SPECIAL_SINGLE_REMARK_LIST = ["掌柜推荐", "送上衣", "小仙女", "送扇子", "店铺主款", "加油必胜"]

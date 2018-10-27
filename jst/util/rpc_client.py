@@ -3,14 +3,9 @@
 import hashlib
 import json
 import time
-import sys
 from collections import OrderedDict
 from wheel.signatures import sign
 
-
-if sys.version < '3':
-    reload(sys)
-    sys.setdefaultencoding('utf8')
 
 try:
     from urllib2 import urlopen, Request

@@ -22,7 +22,7 @@ class Doc():
 	
 	def parseData(self):
 		# 数据获取方式，并进行找寻文件，读取文件操作
-		if self.method == 'bs':
+		if self.method == 'bs' or self.method == "is":
 			try:
 				with open(FILEDIR + os.sep + FILENAME, 'r', encoding="gb18030") as f:
 					html = f.read()

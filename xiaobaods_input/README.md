@@ -63,4 +63,5 @@ python xiaobaods_input bs
 - Ver 0.5.2 2018-10-12 Beta: 添加了市场大盘的解析适用性，修复了市场大盘的录入bug
 - Ver 0.5.3 2018-10-12 Beta: 修补前置bug
 - Ver 0.5.4 2018-10-16 Beta: 修补response[page]异常为空的bug
+- Ver 0.6.0 2018-10-27 Beta: 添加后台快速拾取模块 is
 
